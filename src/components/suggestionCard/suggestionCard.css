@@ -17,10 +17,10 @@
     width:100%;
     height:100%;
     object-fit: contain;
+    border-radius: 50%;
 }
 .suggestion-name{
   height:18%;
-  /* border: 1px solid pink; */
   display: flex;
   flex-direction: column;
   text-align:left;
@@ -49,4 +49,16 @@
     font-size: 110%;
     border-radius: 10px;
     border: none;
+}
+@media screen and (max-width: 768px) {
+    .suggestion-card{
+    height:250px;
+    width: 170px;
+    }
+    .suggestion-btns{
+        width:80%;
+        font-size: 80%;
+        gap:10%;
+        align-items: start;
+    }
 }

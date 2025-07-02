@@ -97,6 +97,7 @@
    width:80%;
    height: 80%;
    object-fit: contain;
+   border-radius: 50%;
 }
 .convo-page-side2-user-name{
     width:78%;
@@ -181,5 +182,14 @@
 @media screen and (max-width: 768px) {
     .convo-page-side2{
         height: 80vh;
+    }
+    .convo-page-side2-search3{
+        width: 15%;
+    }
+    .convo-page-side2-search2 input{
+        width: 90%;
+        height: 50%;
+        margin-top: 5%;
+        font-size: 100%;
     }
 }

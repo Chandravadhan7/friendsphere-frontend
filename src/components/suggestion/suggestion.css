@@ -12,9 +12,10 @@
     /* border: 1px solid yellow; */
 }
 .sugg-pic{
-    width:100%;
-    height: 100%;
+    width:90%;
+    height: 90%;
     object-fit: contain;
+    border-radius: 50%;
 }
 .sugg-name{
     width:50%;
