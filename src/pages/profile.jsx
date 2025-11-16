@@ -103,7 +103,7 @@ export default function Profile() {
 
     try {
       const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/createpost",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/createpost",
         {
           method: "POST",
           body: formData,
@@ -125,7 +125,7 @@ export default function Profile() {
 
   const getPosts = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/posts/${userId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/posts/${userId}`,
       {
         method: "GET",
         headers: {
@@ -145,7 +145,7 @@ export default function Profile() {
 
   const getUser = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${userId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${userId}`,
       {
         method: "GET",
         headers: {
@@ -175,7 +175,7 @@ export default function Profile() {
       const payload = { [field]: value };
 
       const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio",
         {
           method: "POST",
           headers: {
@@ -198,7 +198,7 @@ export default function Profile() {
   const getBio = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
         {
           method: "GET",
           headers: {
@@ -234,7 +234,7 @@ export default function Profile() {
 
   const getAllFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
       {
         method: "GET",
         headers: {
@@ -265,8 +265,8 @@ export default function Profile() {
 
     const endpoint =
       type === "profile"
-        ? "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/update-profile-pic"
-        : "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/update-cover-pic";
+        ? "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/update-profile-pic"
+        : "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/update-cover-pic";
 
     try {
       const response = await fetch(endpoint, {

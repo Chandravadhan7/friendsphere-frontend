@@ -26,7 +26,7 @@ export default function FriendsProfile() {
 
   const getPosts = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/posts/${user_id}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/posts/${user_id}`,
       {
         method: "GET",
         headers: { sessionId, userId },
@@ -41,7 +41,7 @@ export default function FriendsProfile() {
 
   const getUser = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${user_id}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${user_id}`,
       {
         method: "GET",
         headers: { sessionId, userId },
@@ -64,7 +64,7 @@ export default function FriendsProfile() {
   const checkOrCreateConversation = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations`,
         {
           method: "GET",
           headers: { sessionId, userId },
@@ -78,7 +78,7 @@ export default function FriendsProfile() {
 
       for (const convo of allConversations) {
         const res = await fetch(
-          `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
           {
             headers: { sessionId, userId },
           }
@@ -120,7 +120,7 @@ export default function FriendsProfile() {
     };
 
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
       {
         method: "POST",
         headers: {
@@ -151,7 +151,7 @@ export default function FriendsProfile() {
     };
 
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
       {
         method: "POST",
         headers: {
@@ -172,7 +172,7 @@ export default function FriendsProfile() {
   const getBio = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio/${user_id}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio/${user_id}`,
         {
           method: "GET",
           headers: { userId, sessionId },
@@ -201,7 +201,7 @@ export default function FriendsProfile() {
 
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${user_id}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${user_id}`,
       {
         method: "GET",
         headers: {
@@ -227,7 +227,7 @@ export default function FriendsProfile() {
 
   const getAllFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${user_id}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${user_id}`,
       {
         method: "GET",
         headers: {
