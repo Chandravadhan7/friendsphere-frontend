@@ -6,7 +6,7 @@ export default function FriendRequestCard({ item }) {
   const [mutualFriends, setMutualFriends] = useState([]);
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${item?.userId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${item?.userId}`,
       {
         method: "GET",
         headers: {
