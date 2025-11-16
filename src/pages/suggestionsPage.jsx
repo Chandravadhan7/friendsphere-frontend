@@ -14,7 +14,7 @@ export default function SuggestionsPage() {
 
   const getSuggestions = async () => {
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
       {
         method: "GET",
         headers: {

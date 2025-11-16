@@ -9,7 +9,7 @@ export default function SuggestionCard({ item }) {
 
   const sendFriendRequest = async (id) => {
     await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friendrequest/${id}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friendrequest/${id}`,
       {
         method: "POST",
         headers: { userId: userId, sessionId: sessionId },
@@ -21,7 +21,7 @@ export default function SuggestionCard({ item }) {
 
   const cancelFriendRequest = async (id) => {
     await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/cancelrequest/${id}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/cancelrequest/${id}`,
       {
         method: "DELETE",
         headers: { userId: userId, sessionId: sessionId },
@@ -37,7 +37,7 @@ export default function SuggestionCard({ item }) {
 
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${item?.userId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${item?.userId}`,
       {
         method: "GET",
         headers: {
@@ -75,15 +75,25 @@ export default function SuggestionCard({ item }) {
       </div>
       <div className="suggestion-btns">
         <button
-          onClick={() =>
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             friendRequests[item.userId]
               ? cancelFriendRequest(item.userId)
-              : sendFriendRequest(item.userId)
-          }
+              : sendFriendRequest(item.userId);
+          }}
         >
           {friendRequests[item.userId] ? "Cancel Request" : "Add Friend"}
         </button>
-        <button style={{ backgroundColor: "red" }}>Remove</button>
+        <button
+          style={{ backgroundColor: "red" }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          Remove
+        </button>
       </div>
     </div>
   );
