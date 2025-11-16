@@ -16,7 +16,11 @@ export default function Conversations() {
   const initialConvoId = searchParams.get("conversationId");
 
   const [conversations, setConversations] = useState([]);
+  const [allProcessedConversations, setAllProcessedConversations] = useState(
+    []
+  );
   const [filteredConversations, setFilteredConversations] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [friends, setFriends] = useState([]);
   const [toggle, setToggle] = useState(false);
   const [togglenewgroup, setTogglenewgroup] = useState(false);
@@ -46,6 +50,7 @@ export default function Conversations() {
   }, []);
 
   const selectConversation = (conversationId) => {
+    console.log("Selecting conversation:", conversationId);
     setSelectedConversationId(conversationId);
     setSelectedFriendId(null);
     setSearchParams({ conversationId });
@@ -85,7 +90,7 @@ export default function Conversations() {
     };
 
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
       {
         method: "POST",
         headers: {
@@ -127,7 +132,7 @@ export default function Conversations() {
   const checkOrCreateConversation = async (friendId) => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations`,
         {
           method: "GET",
           headers: {
@@ -147,7 +152,7 @@ export default function Conversations() {
 
       for (const convo of allConversations) {
         const res = await fetch(
-          `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
           {
             headers: {
               sessionId,
@@ -191,7 +196,7 @@ export default function Conversations() {
     };
 
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
       {
         method: "POST",
         headers: {
@@ -225,7 +230,7 @@ export default function Conversations() {
     };
 
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
       {
         method: "POST",
         headers: {
@@ -248,7 +253,7 @@ export default function Conversations() {
   const getBio = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
         {
           method: "GET",
           headers: { userId, sessionId },
@@ -271,7 +276,7 @@ export default function Conversations() {
   const getMutualsFriends = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${userId}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${userId}`,
         {
           method: "GET",
           headers: { sessionId, userId },
@@ -294,7 +299,7 @@ export default function Conversations() {
   const getConversations = async () => {
     try {
       const resp = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
         {
           headers: { sessionId, userId },
         }
@@ -310,25 +315,113 @@ export default function Conversations() {
   };
 
   const filterConversationsWithMessages = async (allConvos) => {
+    console.log(
+      "Starting filterConversationsWithMessages with",
+      allConvos.length,
+      "conversations"
+    );
     const results = [];
     for (const convo of allConvos) {
-      const res = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/messages/${convo.conversationId}`,
-        { headers: { sessionId, userId } }
-      );
-      if (!res.ok) continue;
-      const msgs = await res.json();
-      if (msgs.length > 0 || convo.conversationId === initialConvoId) {
-        results.push(convo);
+      try {
+        // Fetch messages
+        const msgRes = await fetch(
+          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages/${convo.conversationId}`,
+          { headers: { sessionId, userId } }
+        );
+        if (!msgRes.ok) {
+          console.log(`Failed to fetch messages for ${convo.conversationId}`);
+          continue;
+        }
+        const msgs = await msgRes.json();
+        console.log(
+          `Conversation ${convo.conversationId} has ${msgs.length} messages:`,
+          msgs
+        );
+
+        if (msgs.length > 0 || convo.conversationId === initialConvoId) {
+          // Fetch participants to get names
+          const partRes = await fetch(
+            `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+            { headers: { sessionId, userId } }
+          );
+
+          let participantNames = [];
+          if (partRes.ok) {
+            const participants = await partRes.json();
+            console.log(
+              `Raw participants for ${convo.conversationId}:`,
+              participants
+            );
+
+            // Fetch user details for each participant to get their names
+            for (const participant of participants) {
+              if (participant.userId) {
+                try {
+                  const userRes = await fetch(
+                    `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${participant.userId}`,
+                    { headers: { sessionId, userId } }
+                  );
+                  if (userRes.ok) {
+                    const user = await userRes.json();
+                    if (user.name) {
+                      participantNames.push(user.name);
+                    }
+                  }
+                } catch (error) {
+                  console.error(
+                    `Error fetching user ${participant.userId}:`,
+                    error
+                  );
+                }
+              }
+            }
+
+            console.log(
+              `Conversation ${convo.conversationId} participant names:`,
+              participantNames
+            );
+          }
+
+          // Add latest message timestamp and participant names
+          const latestMessage = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+          // Try different timestamp properties
+          const messageTime =
+            latestMessage?.timestamp ||
+            latestMessage?.sentAt ||
+            latestMessage?.createdAt;
+          console.log(
+            `Conversation ${convo.conversationId} latest message time:`,
+            messageTime
+          );
+
+          results.push({
+            ...convo,
+            latestMessageTime: messageTime || new Date(0).toISOString(),
+            participantNames: participantNames,
+          });
+        }
+      } catch (error) {
+        console.error(
+          `Error processing conversation ${convo.conversationId}:`,
+          error
+        );
       }
     }
+
+    // Sort by latest message timestamp (most recent first)
+    results.sort((a, b) => {
+      return new Date(b.latestMessageTime) - new Date(a.latestMessageTime);
+    });
+
+    console.log("Final sorted results:", results);
+    setAllProcessedConversations(results);
     setFilteredConversations(results);
   };
 
   const getAllFriends = async () => {
     try {
       const resp = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
         { headers: { sessionId, userId } }
       );
       if (!resp.ok) throw new Error("failed to fetch friends");
@@ -342,6 +435,56 @@ export default function Conversations() {
     getConversations();
     getAllFriends();
   }, []);
+
+  useEffect(() => {
+    const filterBySearch = () => {
+      console.log("Search query:", searchQuery);
+      console.log("All processed conversations:", allProcessedConversations);
+
+      if (searchQuery.trim() === "") {
+        // Show all processed conversations (already sorted)
+        setFilteredConversations(allProcessedConversations);
+      } else {
+        // Filter the already processed conversations
+        const results = allProcessedConversations.filter((convo) => {
+          console.log(
+            "Checking conversation:",
+            convo.conversationId,
+            "Participant names:",
+            convo.participantNames
+          );
+
+          // Search in participant names
+          if (convo.participantNames && convo.participantNames.length > 0) {
+            const nameMatch = convo.participantNames.some((name) =>
+              name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            if (nameMatch) {
+              console.log("Match found in participant names");
+              return true;
+            }
+          }
+
+          // Also check group name for group conversations
+          if (
+            convo.isGroup &&
+            convo.groupName &&
+            convo.groupName.toLowerCase().includes(searchQuery.toLowerCase())
+          ) {
+            console.log("Match found in group name");
+            return true;
+          }
+
+          return false;
+        });
+
+        console.log("Filtered results:", results);
+        setFilteredConversations(results);
+      }
+    };
+
+    filterBySearch();
+  }, [searchQuery, allProcessedConversations]);
 
   useEffect(() => {
     if (initialConvoId) {
@@ -508,23 +651,42 @@ export default function Conversations() {
                 </div>
               </div>
               <div className="convo-page-side1-search">
-                <input placeholder="search conversation" />
+                <input
+                  placeholder="search conversation"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
               <div className="convo-page-side1-chats">
-                {filteredConversations.map((item) => (
-                  <Conversation
-                    key={item.conversationId}
-                    conversationId={item.conversationId}
-                    onClick={() => {
-                      selectConversation(item.conversationId);
-                      if (isMobile) setIsMobileChatOpen(true);
+                {filteredConversations.length === 0 &&
+                searchQuery.trim() !== "" ? (
+                  <div
+                    style={{
+                      color: "rgba(255, 255, 255, 0.6)",
+                      textAlign: "center",
+                      marginTop: "40px",
+                      fontSize: "15px",
+                      padding: "0 20px",
                     }}
-                    isSelected={
-                      String(selectedConversationId) ===
-                      String(item.conversationId)
-                    }
-                  />
-                ))}
+                  >
+                    No conversations found matching "{searchQuery}"
+                  </div>
+                ) : (
+                  filteredConversations.map((item) => (
+                    <Conversation
+                      key={item.conversationId}
+                      conversationId={item.conversationId}
+                      onClick={() => {
+                        selectConversation(item.conversationId);
+                        if (isMobile) setIsMobileChatOpen(true);
+                      }}
+                      isSelected={
+                        String(selectedConversationId) ===
+                        String(item.conversationId)
+                      }
+                    />
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -532,22 +694,37 @@ export default function Conversations() {
       )}
 
       {/* ChatBox */}
-      {selectedConversationId && (!isMobile || isMobileChatOpen) && (
-        <>
-          {/* Add back button for mobile */}
-          {isMobile && isMobileChatOpen && (
-            <button
-              className="mobile-back-btn"
-              onClick={() => setIsMobileChatOpen(false)}
-            >
-              ← Back
-            </button>
-          )}
-          <ChatBox
-            conversationId={selectedConversationId}
-            onBack={() => setIsMobileChatOpen(false)}
-          />
-        </>
+      {selectedConversationId ? (
+        !isMobile || isMobileChatOpen ? (
+          <>
+            {/* Add back button for mobile */}
+            {isMobile && isMobileChatOpen && (
+              <button
+                className="mobile-back-btn"
+                onClick={() => setIsMobileChatOpen(false)}
+              >
+                ← Back
+              </button>
+            )}
+            <ChatBox
+              key={selectedConversationId}
+              conversationId={selectedConversationId}
+              onBack={() => setIsMobileChatOpen(false)}
+            />
+          </>
+        ) : null
+      ) : (
+        <div
+          className="convo-page-side2"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#888",
+          }}
+        >
+          <p>Select a conversation to start chatting</p>
+        </div>
       )}
     </div>
   );

@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./home.css";
+import "./emptyState.css";
 import Post from "../components/post/post";
 import Suggestion from "../components/suggestion/suggestion";
 import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import SentimentSatisfiedOutlinedIcon from "@mui/icons-material/SentimentSatisfiedOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { fetchLikes } from "./fetchLikes";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -24,6 +25,8 @@ export default function Home() {
   const [buttonState, setButtonState] = useState("see more");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const postRefs = useRef({});
 
   const toggleHeight = () => {
     setButtonState(buttonState === "see less" ? "see more" : "see less");
@@ -50,7 +53,7 @@ export default function Home() {
   const fetchwithauth = async () => {
     let sessionKey = localStorage.getItem("sessionId");
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/api/validate",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/validate",
       {
         method: "POST",
         credentials: "include",
@@ -95,7 +98,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/createpost",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/createpost",
         {
           method: "POST",
           body: formData,
@@ -123,7 +126,7 @@ export default function Home() {
       }
 
       const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/feed",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/feed",
         {
           method: "GET",
           headers: {
@@ -149,13 +152,34 @@ export default function Home() {
     getPosts();
   }, []);
 
+  // Scroll to specific post if postId is in URL
+  useEffect(() => {
+    const postId = searchParams.get("postId");
+    if (postId && posts.length > 0) {
+      setTimeout(() => {
+        const postElement = postRefs.current[postId];
+        if (postElement) {
+          postElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          // Highlight the post briefly
+          postElement.style.boxShadow = "0 0 20px rgba(59, 130, 246, 0.6)";
+          setTimeout(() => {
+            postElement.style.boxShadow = "";
+          }, 2000);
+        }
+      }, 500);
+    }
+  }, [posts, searchParams]);
+
   useEffect(() => {
     console.log("Updated Posts State:", posts);
   }, [posts]);
 
   const getSuggestions = async () => {
     const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
+      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
       {
         method: "GET",
         headers: {
@@ -263,15 +287,35 @@ export default function Home() {
               <div className="pvfl">Location</div>
             </div>
 
-            <button className="share-btn" onClick={handleUpload}>
+            <button className="btn-share" onClick={handleUpload}>
               Share post
             </button>
           </div>
         </div>
         <div className="side12">
-          {posts.map((item) => {
-            return <Post postItem={item} likes={likes} />;
-          })}
+          {posts.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-state-icon">📭</div>
+              <h3>No Posts Yet</h3>
+              <p>Posts from your friends will appear here.</p>
+              <p>Start by adding friends or create your first post above!</p>
+              <Link to="/suggestions" className="empty-state-btn">
+                Find Friends
+              </Link>
+            </div>
+          ) : (
+            posts.map((item) => {
+              return (
+                <div
+                  key={item.postId}
+                  ref={(el) => (postRefs.current[item.postId] = el)}
+                  style={{ transition: "box-shadow 0.3s ease" }}
+                >
+                  <Post postItem={item} likes={likes} />
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
       <div
@@ -284,16 +328,31 @@ export default function Home() {
       >
         <div className="side21">Suggested for you ✨</div>
         <div className="side22">
-          {suggestion.map((item) => {
-            return (
-              <Link
-                to={`/profile/${item?.userId}`}
-                style={{ textDecoration: "none" }}
+          {suggestion.length === 0 ? (
+            <div className="empty-suggestions">
+              <p
+                style={{
+                  color: "rgba(255, 255, 255, 0.6)",
+                  padding: "20px",
+                  textAlign: "center",
+                }}
               >
-                <Suggestion suggestedItem={item} />
-              </Link>
-            );
-          })}
+                No suggestions available right now. Check back later!
+              </p>
+            </div>
+          ) : (
+            suggestion.map((item) => {
+              return (
+                <Link
+                  key={item?.userId}
+                  to={`/profile/${item?.userId}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Suggestion suggestedItem={item} />
+                </Link>
+              );
+            })
+          )}
         </div>
         <div className="side23">
           <button onClick={toggleHeight}>

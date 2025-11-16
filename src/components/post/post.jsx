@@ -17,6 +17,11 @@ export default function Post({ postItem, likes }) {
   const [showComments, setShowComments] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [conversations, setConversations] = useState([]);
+  const [conversationNames, setConversationNames] = useState({});
+  const [loadingNames, setLoadingNames] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const dispatch = useDispatch();
   const postId = postItem?.postId;
@@ -27,7 +32,7 @@ export default function Post({ postItem, likes }) {
   const handleLike = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/likes/post?postId=${postId}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/likes/post?postId=${postId}`,
         {
           method: "POST",
           headers: {
@@ -51,7 +56,7 @@ export default function Post({ postItem, likes }) {
   const handledislike = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/likes/post/dislike?postId=${postId}`,
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/likes/post/dislike?postId=${postId}`,
         {
           method: "DELETE",
           headers: {
@@ -76,7 +81,7 @@ export default function Post({ postItem, likes }) {
 
   const getComments = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/comments?postId=${postId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/comments?postId=${postId}`,
       {
         method: "GET",
         headers: {
@@ -102,7 +107,7 @@ export default function Post({ postItem, likes }) {
   const addComment = async () => {
     let inputobj = { content: comment };
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/comments/postcomment?postId=${postId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/comments/postcomment?postId=${postId}`,
       {
         method: "POST",
         headers: {
@@ -123,7 +128,7 @@ export default function Post({ postItem, likes }) {
 
   const getUser = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${postItem?.userId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${postItem?.userId}`,
       {
         method: "GET",
         headers: {
@@ -146,6 +151,116 @@ export default function Post({ postItem, likes }) {
     getUser();
   }, [postItem?.userId]);
 
+  const getConversations = async () => {
+    try {
+      setLoadingNames(true);
+      const response = await fetch(
+        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations?userId=${userId}`,
+        {
+          headers: { sessionId, userId },
+        }
+      );
+      if (response.ok) {
+        const convos = await response.json();
+        setConversations(convos);
+
+        // Fetch names for each conversation
+        const names = {};
+        const namePromises = convos.map(async (convo) => {
+          if (convo.isGroup) {
+            names[convo.conversationId] = convo.title || "Unnamed Group";
+          } else {
+            // Fetch participants for 1-on-1 chats
+            try {
+              const partRes = await fetch(
+                `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+                { headers: { sessionId, userId } }
+              );
+              if (partRes.ok) {
+                const participants = await partRes.json();
+                const otherUser = participants.find(
+                  (p) => p.userId !== Number(userId)
+                );
+                if (otherUser) {
+                  const userRes = await fetch(
+                    `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${otherUser.userId}`,
+                    { headers: { sessionId, userId } }
+                  );
+                  if (userRes.ok) {
+                    const user = await userRes.json();
+                    names[convo.conversationId] = user.name || "Unknown User";
+                  } else {
+                    names[convo.conversationId] = "Chat";
+                  }
+                } else {
+                  names[convo.conversationId] = "Chat";
+                }
+              } else {
+                names[convo.conversationId] = "Chat";
+              }
+            } catch (err) {
+              console.error("Failed to fetch conversation name", err);
+              names[convo.conversationId] = "Chat";
+            }
+          }
+        });
+
+        await Promise.all(namePromises);
+        console.log("Conversation names loaded:", names);
+        setConversationNames(names);
+        setLoadingNames(false);
+      }
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      setLoadingNames(false);
+    }
+  };
+
+  const handleShareClick = () => {
+    setShowShareModal(true);
+    getConversations();
+  };
+
+  const shareToChat = async (conversationId) => {
+    try {
+      const postUrl = `${window.location.origin}/home?postId=${postItem?.postId}`;
+      const userName = userDetails?.name || "Someone";
+      const shareMessage = `${userName} shared a post\n${postUrl}`;
+
+      const response = await fetch(
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            sessionId: sessionId,
+            userId: userId,
+          },
+          body: JSON.stringify({
+            conversationId: conversationId,
+            senderId: userId,
+            messageType: "TEXT",
+            content: shareMessage,
+            createdAt: Date.now(),
+            updatedAt: null,
+            isDeleted: false,
+            replyToMessageId: null,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Post shared successfully!");
+        setShowShareModal(false);
+      } else {
+        alert("Failed to share post");
+      }
+    } catch (error) {
+      console.error("Error sharing post:", error);
+      alert("Error sharing post");
+    }
+  };
+
   const hasDescription = !!postItem?.description;
 
   const toggleDropdown = () => {
@@ -154,7 +269,7 @@ export default function Post({ postItem, likes }) {
 
   const deletePost = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/delete-post?postId=${postItem?.postId}`,
+      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/delete-post?postId=${postItem?.postId}`,
       {
         method: "DELETE",
         headers: {
@@ -185,7 +300,10 @@ export default function Post({ postItem, likes }) {
         >
           <div className="post-pro-pic-cont">
             <img
-              src={userDetails?.profile_img_url || "https://i.ibb.co/67HWYXmq/icons8-user-96.png"}
+              src={
+                userDetails?.profile_img_url ||
+                "https://i.ibb.co/67HWYXmq/icons8-user-96.png"
+              }
               className="post-pro-pic"
               alt="profile"
             />
@@ -239,11 +357,89 @@ export default function Post({ postItem, likes }) {
           >
             <FaRegComment style={{ fontSize: "130%" }} />
           </div>
-          <div className="post-share">
+          <div className="post-share" onClick={handleShareClick}>
             <ShareIcon />
           </div>
         </div>
       </div>
+
+      {showShareModal && (
+        <div
+          className="share-modal-overlay"
+          onClick={() => setShowShareModal(false)}
+        >
+          <div className="share-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="share-modal-header">
+              <h3>Share to chat</h3>
+              <button
+                className="share-close-btn"
+                onClick={() => setShowShareModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="share-search">
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="share-search-input"
+              />
+            </div>
+            <div className="share-conversations-list">
+              {loadingNames ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "20px",
+                    color: "#888",
+                  }}
+                >
+                  Loading conversations...
+                </div>
+              ) : (
+                <>
+                  {conversations
+                    .filter((convo) => {
+                      const name =
+                        conversationNames[convo.conversationId] || "";
+                      return name
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase());
+                    })
+                    .map((convo) => (
+                      <div
+                        key={convo.conversationId}
+                        className="share-conversation-item"
+                        onClick={() => shareToChat(convo.conversationId)}
+                      >
+                        <div className="share-convo-icon">
+                          {convo.isGroup ? "👥" : "👤"}
+                        </div>
+                        <div className="share-convo-name">
+                          {conversationNames[convo.conversationId] ||
+                            "Loading..."}
+                        </div>
+                      </div>
+                    ))}
+                  {conversations.filter((convo) => {
+                    const name = conversationNames[convo.conversationId] || "";
+                    return name
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase());
+                  }).length === 0 &&
+                    !loadingNames && (
+                      <div className="no-conversations">
+                        No conversations found
+                      </div>
+                    )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showComments && (
         <div className="comments">
