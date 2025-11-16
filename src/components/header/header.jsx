@@ -45,14 +45,17 @@ export default function Header() {
   const logout = async () => {
     try {
       const sessionKey = localStorage.getItem("sessionId");
+      const userId = localStorage.getItem("userId");
+
       const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/api/logout",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/logout",
         {
           method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
             sessionId: sessionKey,
+            userId: userId,
           },
         }
       );
@@ -91,7 +94,7 @@ export default function Header() {
       <div className="header1">
         <div className="header11">
           <Link to="/" className="head-logo">
-            FriendSphere 
+            FriendSphere
           </Link>
           {!isMobile && (
             <div className="head-search">
