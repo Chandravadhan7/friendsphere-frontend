@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./loginpage.css"; // Assuming you have a CSS file for styles
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import {
   Eye,
   EyeOff,
@@ -28,7 +29,7 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/api/login",
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/login",
         {
           method: "POST",
           credentials: "include",
@@ -55,6 +56,46 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/google-login",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idToken: credentialResponse.credential }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Google login failed");
+      }
+
+      const loginResponse = await response.json();
+      localStorage.setItem("sessionId", loginResponse.sessionId);
+      localStorage.setItem("userId", loginResponse.userId);
+      console.log("Google login successful:", loginResponse);
+
+      navigate("/");
+    } catch (error) {
+      setError(error.message);
+      console.error("Error during Google login:", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google login failed. Please try again.");
   };
 
   return (
@@ -146,9 +187,13 @@ export default function LoginPage() {
                   <input type="checkbox" className="checkbox" />
                   Remember me
                 </label>
-                <a href="#" className="forgot-password">
+                <button
+                  type="button"
+                  className="forgot-password"
+                  onClick={() => console.log("Forgot password clicked")}
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
 
               {/* Login button */}
@@ -173,6 +218,25 @@ export default function LoginPage() {
               <div className="divider-line"></div>
               <span className="divider-text">or</span>
               <div className="divider-line"></div>
+            </div>
+
+            {/* Google Login Button */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "20px",
+              }}
+            >
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="filled_blue"
+                size="large"
+                text="signin_with"
+                shape="rectangular"
+                width="100%"
+              />
             </div>
 
             {/* Sign up link */}
