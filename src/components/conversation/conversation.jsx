@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./conversation.css";
+import { getApiUrl } from "../../config/api";
 import { RiCheckDoubleLine } from "react-icons/ri";
 import { GoDotFill } from "react-icons/go";
 
@@ -15,7 +16,7 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
 
   const getParticipants = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${conversationId}`,
+      getApiUrl(`/conversation-participants/${conversationId}`),
       {
         method: "GET",
         headers: {
@@ -41,16 +42,13 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
   }, [conversationId]);
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${otherUserId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${otherUserId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch user details");
@@ -68,7 +66,7 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
 
   const getConversation = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations/${conversationId}`,
+      getApiUrl(`/conversations/${conversationId}`),
       {
         method: "GET",
         headers: {
@@ -93,7 +91,7 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
   const getUnseenMessage = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/messages/latest-unseen-message/${conversationId}`,
+        getApiUrl(`/messages/latest-unseen-message/${conversationId}`),
         {
           method: "GET",
           headers: {
@@ -119,7 +117,7 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
   const getLatestMessages = async () => {
     try {
       const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/messages/latest-message/${conversationId}`,
+        getApiUrl(`/messages/latest-message/${conversationId}`),
         {
           method: "GET",
           headers: {
@@ -151,7 +149,9 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
 
   const setLastSeen = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants/last-seen/${conversationId}/${userId}`,
+      getApiUrl(
+        `/conversation-participants/last-seen/${conversationId}/${userId}`
+      ),
       {
         method: "PATCH",
         headers: {
@@ -193,14 +193,22 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
           {unseenMessage.length > 0 ? (
             <>
               <GoDotFill style={{ color: "#3B82F6", fontSize: "120%" }} />
-              <div>{unseenMessage[0]?.content}</div>
+              <div>
+                {unseenMessage[0]?.content?.includes("shared a post")
+                  ? unseenMessage[0].content.split("\n")[0]
+                  : unseenMessage[0]?.content}
+              </div>
             </>
           ) : (
             <>
               {latestMessage && latestMessage.senderId === userId && (
                 <RiCheckDoubleLine style={{ fontSize: "120%" }} />
               )}
-              <div>{latestMessage?.content}</div>
+              <div>
+                {latestMessage?.content?.includes("shared a post")
+                  ? latestMessage.content.split("\n")[0]
+                  : latestMessage?.content}
+              </div>
             </>
           )}
         </div>

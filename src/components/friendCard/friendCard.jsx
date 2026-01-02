@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./friendCard.css";
+import { getApiUrl } from "../../config/api";
 
 export default function FriendCard({ friendItem, onClick, isSelected }) {
   const [mutualFriends, setMutualFriends] = useState([]);
@@ -8,7 +9,7 @@ export default function FriendCard({ friendItem, onClick, isSelected }) {
 
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${friendItem?.userId}`,
+      getApiUrl(`/friendship/mutual-friends/${friendItem?.userId}`),
       {
         method: "GET",
         headers: {

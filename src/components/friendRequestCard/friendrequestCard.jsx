@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import "./friendRequestCard.css";
+import { getApiUrl } from "../../config/api";
 export default function FriendRequestCard({ item }) {
   const sessionId = localStorage.getItem("sessionId");
   const userId = localStorage.getItem("userId");
   const [mutualFriends, setMutualFriends] = useState([]);
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${item?.userId}`,
+      getApiUrl(`/friendship/mutual-friends/${item?.userId}`),
       {
         method: "GET",
         headers: {
@@ -32,19 +33,24 @@ export default function FriendRequestCard({ item }) {
   return (
     <div className="request-card">
       <div className="request-pic-cont">
-        <img src={item?.profile_img_url} className="request-pic" />
+        <img
+          src={item?.profile_img_url}
+          className="request-pic"
+          alt={item?.name}
+        />
       </div>
       <div className="request-name">
         <div className="request-name-user">{item?.name}</div>
         {mutualFriends.length > 0 && (
-          <div style={{ fontSize: "80%", color: "#3B82F6" }}>
-            {mutualFriends.length} mutual Friends
+          <div className="request-mutual">
+            {mutualFriends.length} mutual{" "}
+            {mutualFriends.length === 1 ? "Friend" : "Friends"}
           </div>
         )}
       </div>
       <div className="request-btns">
-        <button>confrim</button>
-        <button>reject</button>
+        <button className="request-confirm-btn">confirm</button>
+        <button className="request-reject-btn">reject</button>
       </div>
     </div>
   );

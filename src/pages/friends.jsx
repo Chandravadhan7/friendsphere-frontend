@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./friends.css";
+import { getApiUrl } from "../config/api";
 import FriendRequestCard from "../components/friendRequestCard/friendrequestCard";
 import SuggestionCard from "../components/suggestionCard/suggestionCard";
 import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
 import ArrowBackIosOutlinedIcon from "@mui/icons-material/ArrowBackIosOutlined";
+import { AiFillHome } from "react-icons/ai";
+import { FaUserFriends } from "react-icons/fa";
+import { MdPeopleAlt } from "react-icons/md";
+import { HiUserGroup } from "react-icons/hi";
 
 export default function Friends() {
   const [friendRequests, setFriendRequests] = useState([]);
@@ -32,13 +37,10 @@ export default function Friends() {
 
   const getFriendRequest = async () => {
     try {
-      const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friendrequests",
-        {
-          method: "GET",
-          headers: { sessionId, userId },
-        }
-      );
+      const response = await fetch(getApiUrl("/friendship/friendrequests"), {
+        method: "GET",
+        headers: { sessionId, userId },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch requests");
 
@@ -51,13 +53,10 @@ export default function Friends() {
 
   const getSuggestions = async () => {
     try {
-      const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
-        {
-          method: "GET",
-          headers: { sessionId, userId },
-        }
-      );
+      const response = await fetch(getApiUrl("/friendship/suggestions"), {
+        method: "GET",
+        headers: { sessionId, userId },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch suggestions");
 
@@ -79,77 +78,58 @@ export default function Friends() {
 
     return (
       <div className="friend-cont-side1">
-        <div
-          className="friend-cont-side1-child"
-          style={{ textAlign: "left", fontSize: "180%", lineHeight: "200%" }}
-        >
-          Friends
+        <div className="friends-header">
+          <h2>Friends</h2>
         </div>
 
         <div
-          className="friend-cont-side1-child"
+          className={`friend-menu-item ${path === "/friends/homecontent" ? "active" : ""}`}
           onClick={() => handleMainNavClick("/friends/homecontent")}
         >
-          <div className="f-c-s1-c-icon">
-            <img
-              src="https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-              className="post-pro-pic"
-              alt="profile"
-            />
+          <div className="friend-menu-icon">
+            <AiFillHome />
           </div>
-          <div className="f-c-s1-c-text">Home</div>
-          <div className="f-c-s1-c-arrow">
+          <div className="friend-menu-text">Home</div>
+          <div className="friend-menu-arrow">
             <ArrowForwardIosOutlinedIcon />
           </div>
         </div>
 
         <div
-          className="friend-cont-side1-child"
+          className={`friend-menu-item ${path === "/friendrequest" ? "active" : ""}`}
           onClick={() => handleMainNavClick("/friendrequest")}
         >
-          <div className="f-c-s1-c-icon">
-            <img
-              src="https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-              className="post-pro-pic"
-              alt="profile"
-            />
+          <div className="friend-menu-icon">
+            <FaUserFriends />
           </div>
-          <div className="f-c-s1-c-text">Friend Requests</div>
-          <div className="f-c-s1-c-arrow">
+          <div className="friend-menu-text">Friend Requests</div>
+          <div className="friend-menu-arrow">
             <ArrowForwardIosOutlinedIcon />
           </div>
         </div>
 
         <div
-          className="friend-cont-side1-child"
+          className={`friend-menu-item ${path === "/suggestions" ? "active" : ""}`}
           onClick={() => handleMainNavClick("/suggestions")}
         >
-          <div className="f-c-s1-c-icon">
-            <img
-              src="https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-              className="post-pro-pic"
-              alt="profile"
-            />
+          <div className="friend-menu-icon">
+            <MdPeopleAlt />
           </div>
-          <div className="f-c-s1-c-text">Suggestions</div>
-          <div className="f-c-s1-c-arrow">
+          <div className="friend-menu-text">Suggestions</div>
+          <div className="friend-menu-arrow">
             <ArrowForwardIosOutlinedIcon />
           </div>
         </div>
 
         <div
-          className="friend-cont-side1-child"
+          className={`friend-menu-item ${path === "/friends/list" ? "active" : ""}`}
           onClick={() => handleMainNavClick("/friends/list")}
         >
-          <div className="f-c-s1-c-icon">
-            <img
-              src="https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-              className="post-pro-pic"
-              alt="profile"
-            />
+          <div className="friend-menu-icon">
+            <HiUserGroup />
           </div>
-          <div className="f-c-s1-c-text">All Friends</div>
-          <div className="f-c-s1-c-arrow">
+          <div className="friend-menu-text">All Friends</div>
+          <div className="friend-menu-arrow">
             <ArrowForwardIosOutlinedIcon />
           </div>
         </div>

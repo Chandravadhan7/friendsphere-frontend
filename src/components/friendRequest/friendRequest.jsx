@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./friendRequest.css";
+import { getApiUrl } from "../../config/api";
 
 export default function FriendRequest({ requestItem }) {
   const sessionId = localStorage.getItem("sessionId");
@@ -8,7 +9,7 @@ export default function FriendRequest({ requestItem }) {
 
   const acceptFriendRequest = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/acceptrequest/${requestItem?.userId}`,
+      getApiUrl(`/friendship/acceptrequest/${requestItem?.userId}`),
       {
         method: "PATCH",
         headers: {
@@ -28,7 +29,7 @@ export default function FriendRequest({ requestItem }) {
 
   const rejectFriendRequest = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/rejectrequest/${requestItem?.userId}`,
+      getApiUrl(`/friendship/rejectrequest/${requestItem?.userId}`),
       {
         method: "PATCH",
         headers: {
@@ -48,7 +49,7 @@ export default function FriendRequest({ requestItem }) {
   };
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${requestItem?.userId}`,
+      getApiUrl(`/friendship/mutual-friends/${requestItem?.userId}`),
       {
         method: "GET",
         headers: {

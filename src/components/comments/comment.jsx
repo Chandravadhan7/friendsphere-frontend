@@ -1,6 +1,7 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import "./comment.css";
 import { useEffect, useState } from "react";
+import { getApiUrl } from "../../config/api";
 
 export default function Comment({ comment }) {
   let sessionId = localStorage.getItem("sessionId");
@@ -16,7 +17,7 @@ export default function Comment({ comment }) {
 
   const getReplies = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/comments/replies/${comment?.commentId}`,
+      getApiUrl(`/comments/replies/${comment?.commentId}`),
       {
         method: "GET",
         headers: {
@@ -40,7 +41,9 @@ export default function Comment({ comment }) {
   const addReply = async () => {
     let inputObj = { content: reply };
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/comments/postComment?postId=${comment?.postId}&parentId=${comment?.commentId}`,
+      getApiUrl(
+        `/comments/postComment?postId=${comment?.postId}&parentId=${comment?.commentId}`
+      ),
       {
         method: "POST",
         headers: {
@@ -60,16 +63,13 @@ export default function Comment({ comment }) {
   };
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${comment?.userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${comment?.userId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch user details");

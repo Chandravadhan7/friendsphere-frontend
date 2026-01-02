@@ -1,5 +1,6 @@
 import Suggestion from "../components/suggestion/suggestion";
 import { useEffect, useState } from "react";
+import { getApiUrl } from "../config/api";
 import UserProfile from "./userprofile";
 import { Link } from "react-router-dom";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
@@ -13,16 +14,13 @@ export default function SuggestionsPage() {
   const userId = localStorage.getItem("userId");
 
   const getSuggestions = async () => {
-    const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl("/friendship/suggestions"), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import FriendRequest from "../components/friendRequest/friendRequest";
+import FriendRequestCard from "../components/friendRequestCard/friendrequestCard";
 import { Link } from "react-router-dom";
+import { getApiUrl } from "../config/api";
 import UserProfile from "./userprofile";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 
@@ -12,16 +13,13 @@ export default function FriendRequestPage() {
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
 
   const getFriendRequest = async () => {
-    const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friendrequests",
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl("/friendship/friendrequests"), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch requests");
@@ -69,15 +67,17 @@ export default function FriendRequestPage() {
             {friendRequests.length} friend requests
           </div>
 
-          {friendRequests.map((item) => (
-            <div
-              key={item.userId}
-              onClick={() => handleRequestClick(item.userId)}
-              style={{ cursor: "pointer" }}
-            >
-              <FriendRequest requestItem={item} />
-            </div>
-          ))}
+          <div className="friend-requests-grid">
+            {friendRequests.map((item) => (
+              <div
+                key={item.userId}
+                onClick={() => handleRequestClick(item.userId)}
+                style={{ cursor: "pointer" }}
+              >
+                <FriendRequestCard item={item} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

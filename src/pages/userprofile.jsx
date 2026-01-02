@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./userprofile.css";
+import { getApiUrl } from "../config/api";
 import Post from "../components/post/post";
 import { SiWorkplace } from "react-icons/si";
 import { RiSchoolLine } from "react-icons/ri";
@@ -24,16 +25,13 @@ export default function UserProfile({ user_id }) {
   let [friends, setFriends] = useState([]);
 
   const getPosts = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/posts/${user_id}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId,
-          userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/post/posts/${user_id}`), {
+      method: "GET",
+      headers: {
+        sessionId,
+        userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch posts");
@@ -44,16 +42,13 @@ export default function UserProfile({ user_id }) {
   };
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${user_id}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId,
-          userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${user_id}`), {
+      method: "GET",
+      headers: {
+        sessionId,
+        userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch user details");
@@ -72,16 +67,13 @@ export default function UserProfile({ user_id }) {
 
   const checkOrCreateConversation = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations`,
-        {
-          method: "GET",
-          headers: {
-            sessionId,
-            userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl(`/conversations`), {
+        method: "GET",
+        headers: {
+          sessionId,
+          userId,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
@@ -93,7 +85,7 @@ export default function UserProfile({ user_id }) {
 
       for (const convo of allConversations) {
         const res = await fetch(
-          `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+          getApiUrl(`/conversation-participants/${convo.conversationId}`),
           {
             headers: {
               sessionId,
@@ -138,18 +130,15 @@ export default function UserProfile({ user_id }) {
       creatorId: userId,
     };
 
-    const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversations",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId,
-          userId,
-        },
-        body: JSON.stringify(conversation),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversations"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId,
+        userId,
+      },
+      body: JSON.stringify(conversation),
+    });
 
     if (!response.ok) {
       throw new Error("Unable to create conversation");
@@ -171,18 +160,15 @@ export default function UserProfile({ user_id }) {
       isAdmin: uid === userId,
     };
 
-    const response = await fetch(
-      "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId,
-          userId,
-        },
-        body: JSON.stringify(participant),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversation-participants"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId,
+        userId,
+      },
+      body: JSON.stringify(participant),
+    });
 
     if (!response.ok) {
       throw new Error("Unable to add participant");
@@ -194,16 +180,13 @@ export default function UserProfile({ user_id }) {
 
   const getBio = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio/${user_id}`,
-        {
-          method: "GET",
-          headers: {
-            userId: userId,
-            sessionId: sessionId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl(`/bio/${user_id}`), {
+        method: "GET",
+        headers: {
+          userId: userId,
+          sessionId: sessionId,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch bio");
@@ -231,7 +214,7 @@ export default function UserProfile({ user_id }) {
 
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${user_id}`,
+      getApiUrl(`/friendship/mutual-friends/${user_id}`),
       {
         method: "GET",
         headers: {
@@ -256,16 +239,13 @@ export default function UserProfile({ user_id }) {
   }, []);
 
   const getAllFriends = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${user_id}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/friendship/friends/${user_id}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch friends");

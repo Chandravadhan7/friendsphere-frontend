@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import FriendCard from "../components/friendCard/friendCard";
 import UserProfile from "./userprofile";
+import { getApiUrl } from "../config/api";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
@@ -9,20 +10,19 @@ export default function AllFriends() {
   const sessionId = localStorage.getItem("sessionId");
   const userId = localStorage.getItem("userId");
   const [friends, setFriends] = useState([]);
+  const [filteredFriends, setFilteredFriends] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
 
   const getAllFriends = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/friendship/friends/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch friends");
@@ -30,12 +30,24 @@ export default function AllFriends() {
 
     const friendsresponse = await response.json();
     setFriends(friendsresponse);
+    setFilteredFriends(friendsresponse);
     console.log("friends", friendsresponse);
   };
 
   useEffect(() => {
     getAllFriends();
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredFriends(friends);
+    } else {
+      const filtered = friends.filter((friend) =>
+        friend.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredFriends(filtered);
+    }
+  }, [searchQuery, friends]);
 
   const handleFriendClick = (id) => {
     setSelectedUserId(id);
@@ -69,23 +81,42 @@ export default function AllFriends() {
           <div className="friend-search">
             <div className="search-input-wrapper">
               <SearchIcon className="search-icon" />
-              <input type="text" placeholder="Search friends" />
+              <input
+                type="text"
+                placeholder="Search friends"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
 
           <div className="requests-number" style={{ marginTop: "4%" }}>
-            {friends.length} friends
+            {filteredFriends.length}{" "}
+            {filteredFriends.length === 1 ? "friend" : "friends"}
           </div>
 
-          {friends.map((item) => (
+          {filteredFriends.length === 0 ? (
             <div
-              key={item.userId}
-              onClick={() => handleFriendClick(item.userId)}
-              style={{ cursor: "pointer" }}
+              style={{
+                color: "rgba(255, 255, 255, 0.6)",
+                textAlign: "center",
+                marginTop: "40px",
+                fontSize: "16px",
+              }}
             >
-              <FriendCard friendItem={item} />
+              No friends found matching "{searchQuery}"
             </div>
-          ))}
+          ) : (
+            filteredFriends.map((item) => (
+              <div
+                key={item.userId}
+                onClick={() => handleFriendClick(item.userId)}
+                style={{ cursor: "pointer" }}
+              >
+                <FriendCard friendItem={item} />
+              </div>
+            ))
+          )}
         </div>
       )}
 

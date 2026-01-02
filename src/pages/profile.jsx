@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./profilepage.css";
+import { getApiUrl } from "../config/api";
 import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import SentimentSatisfiedOutlinedIcon from "@mui/icons-material/SentimentSatisfiedOutlined";
@@ -102,17 +103,14 @@ export default function Profile() {
     if (location) formData.append("location", location);
 
     try {
-      const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/createpost",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            sessionId: sessionId,
-            userId: userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl("/post/createpost"), {
+        method: "POST",
+        body: formData,
+        headers: {
+          sessionId: sessionId,
+          userId: userId,
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to upload post");
 
@@ -124,16 +122,13 @@ export default function Profile() {
   };
 
   const getPosts = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/post/posts/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId,
-          userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/post/posts/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId,
+        userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch posts");
@@ -144,16 +139,13 @@ export default function Profile() {
   };
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId,
-          userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId,
+        userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch user details");
@@ -174,18 +166,15 @@ export default function Profile() {
     try {
       const payload = { [field]: value };
 
-      const response = await fetch(
-        "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            userId: userId,
-            sessionId: sessionId,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(getApiUrl("/bio"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          userId: userId,
+          sessionId: sessionId,
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) throw new Error("Failed to update about info");
       const data = await response.json();
@@ -197,16 +186,13 @@ export default function Profile() {
 
   const getBio = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            userId: userId,
-            sessionId: sessionId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl(`/bio/${userId}`), {
+        method: "GET",
+        headers: {
+          userId: userId,
+          sessionId: sessionId,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch bio");
@@ -233,16 +219,13 @@ export default function Profile() {
   }, [userId]);
 
   const getAllFriends = async () => {
-    const response = await fetch(
-      `http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/friendship/friends/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch friends");
@@ -265,8 +248,8 @@ export default function Profile() {
 
     const endpoint =
       type === "profile"
-        ? "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/update-profile-pic"
-        : "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/user/update-cover-pic";
+        ? getApiUrl("/user/update-profile-pic")
+        : getApiUrl("/user/update-cover-pic");
 
     try {
       const response = await fetch(endpoint, {
@@ -438,6 +421,26 @@ export default function Profile() {
                     className="thought-cont"
                   />
                 </div>
+
+                {/* File Preview Pill */}
+                {file && (
+                  <div className="file-preview-pill">
+                    <span className="file-icon">
+                      {content === "image" ? "🖼️" : "🎥"}
+                    </span>
+                    <span className="file-name">{file.name}</span>
+                    <button
+                      className="remove-file"
+                      onClick={() => {
+                        setFile(null);
+                        setPreviewUrl(null);
+                        setContent("");
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 <div className="contents">
                   <label
