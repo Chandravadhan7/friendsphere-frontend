@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import "./profilepage.css";
+import { getApiUrl } from "../config/api";
 import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import SentimentSatisfiedOutlinedIcon from "@mui/icons-material/SentimentSatisfiedOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import Post from "../components/post/post";
 import { CiCirclePlus } from "react-icons/ci";
 import { RiEmotionLaughFill, RiFontSize } from "react-icons/ri";
@@ -102,17 +104,14 @@ export default function Profile() {
     if (location) formData.append("location", location);
 
     try {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/createpost",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            sessionId: sessionId,
-            userId: userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl("/post/createpost"), {
+        method: "POST",
+        body: formData,
+        headers: {
+          sessionId: sessionId,
+          userId: userId,
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to upload post");
 
@@ -124,16 +123,13 @@ export default function Profile() {
   };
 
   const getPosts = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/posts/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId,
-          userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/post/posts/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId,
+        userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch posts");
@@ -144,16 +140,13 @@ export default function Profile() {
   };
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId,
-          userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId,
+        userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch user details");
@@ -174,18 +167,15 @@ export default function Profile() {
     try {
       const payload = { [field]: value };
 
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            userId: userId,
-            sessionId: sessionId,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(getApiUrl("/bio"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          userId: userId,
+          sessionId: sessionId,
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) throw new Error("Failed to update about info");
       const data = await response.json();
@@ -197,16 +187,13 @@ export default function Profile() {
 
   const getBio = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            userId: userId,
-            sessionId: sessionId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl(`/bio/${userId}`), {
+        method: "GET",
+        headers: {
+          userId: userId,
+          sessionId: sessionId,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch bio");
@@ -233,16 +220,13 @@ export default function Profile() {
   }, [userId]);
 
   const getAllFriends = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/friendship/friends/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch friends");
@@ -265,8 +249,8 @@ export default function Profile() {
 
     const endpoint =
       type === "profile"
-        ? "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/update-profile-pic"
-        : "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/update-cover-pic";
+        ? getApiUrl("/user/update-profile-pic")
+        : getApiUrl("/user/update-cover-pic");
 
     try {
       const response = await fetch(endpoint, {
@@ -303,7 +287,7 @@ export default function Profile() {
           className="cover-pic-plus-btn"
           title="Add/Change Cover Picture"
         >
-          <CiCirclePlus />
+          <CameraAltIcon style={{ fontSize: "20px" }} />
           <input
             id="cover-file-input"
             type="file"
@@ -323,7 +307,7 @@ export default function Profile() {
             className="profile-pic-plus-btn"
             title="Add/Change Profile Picture"
           >
-            <CiCirclePlus />
+            <CameraAltIcon style={{ fontSize: "16px" }} />
             <input
               id="profile-file-input"
               type="file"
@@ -342,9 +326,9 @@ export default function Profile() {
           </div>
         </div>
         <div className="buttons">
-          <button>Add Story</button>
-          <button>
-            <PiDotsThreeBold /> profile
+          <button className="add-story-btn">Add Story</button>
+          <button className="profile-menu-btn">
+            <PiDotsThreeBold /> Profile
           </button>
         </div>
       </div>
@@ -363,59 +347,74 @@ export default function Profile() {
         {activeTab === "Posts" && (
           <>
             <div className="user-info">
-              {about?.workPlace && (
-                <div className="info-display">
-                  <div className="info-display-icon1">
-                    <SiWorkplace />
+              <div className="user-info-title">About</div>
+              {about?.currentCity && (
+                <div className="about-info-item">
+                  <div className="about-icon-container">
+                    <IoHomeOutline />
                   </div>
-                  <div className="info-display-content">{about?.workPlace}</div>
+                  <div className="about-text">
+                    <span className="about-label">Lives in</span>
+                    <span className="about-value">{about?.currentCity}</span>
+                  </div>
                 </div>
               )}
               {about?.secondarySchool && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <RiSchoolLine />
                   </div>
-                  <div className="info-display-content">
-                    {about?.secondarySchool}
+                  <div className="about-text">
+                    <span className="about-label">Went to</span>
+                    <span className="about-value">
+                      {about?.secondarySchool}
+                    </span>
                   </div>
                 </div>
               )}
               {about?.university && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <LiaUniversitySolid />
                   </div>
-                  <div className="info-display-content">
-                    {about?.university}
-                  </div>
-                </div>
-              )}
-              {about?.currentCity && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
-                    <IoHomeOutline />
-                  </div>
-                  <div className="info-display-content">
-                    {about?.currentCity}
+                  <div className="about-text">
+                    <span className="about-label">Studied at</span>
+                    <span className="about-value">{about?.university}</span>
                   </div>
                 </div>
               )}
               {about?.homeTown && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <CiLocationOn />
                   </div>
-                  <div className="info-display-content">{about?.homeTown}</div>
+                  <div className="about-text">
+                    <span className="about-label">From</span>
+                    <span className="about-value">{about?.homeTown}</span>
+                  </div>
                 </div>
               )}
               {about?.relationShipStatus && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <GiRelationshipBounds />
                   </div>
-                  <div className="info-display-content">
-                    {about?.relationShipStatus}
+                  <div className="about-text">
+                    <span className="about-label">Relationship</span>
+                    <span className="about-value">
+                      {about?.relationShipStatus}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {about?.workPlace && (
+                <div className="about-info-item">
+                  <div className="about-icon-container">
+                    <SiWorkplace />
+                  </div>
+                  <div className="about-text">
+                    <span className="about-label">Works at</span>
+                    <span className="about-value">{about?.workPlace}</span>
                   </div>
                 </div>
               )}
@@ -438,6 +437,26 @@ export default function Profile() {
                     className="thought-cont"
                   />
                 </div>
+
+                {/* File Preview Pill */}
+                {file && (
+                  <div className="file-preview-pill">
+                    <span className="file-icon">
+                      {content === "image" ? "🖼️" : "🎥"}
+                    </span>
+                    <span className="file-name">{file.name}</span>
+                    <button
+                      className="remove-file"
+                      onClick={() => {
+                        setFile(null);
+                        setPreviewUrl(null);
+                        setContent("");
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 <div className="contents">
                   <label
@@ -494,7 +513,7 @@ export default function Profile() {
                     <div className="pvfl">Location</div>
                   </div>
 
-                  <button className="share-btn" onClick={handleUpload}>
+                  <button className="shr-btnn" onClick={handleUpload}>
                     Share post
                   </button>
                 </div>
@@ -509,50 +528,24 @@ export default function Profile() {
         )}
 
         {activeTab === "About" && (
-          <div className="about">
-            <div className="about-side1">About</div>
-            <div className="about-side2">
-              {/* Workplace */}
-              <div className="about-section">
-                {showWorkplaceForm ? (
-                  <>
-                    <input
-                      value={workplace}
-                      placeholder="Workplace"
-                      onChange={(e) => setWorkplace(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowWorkplaceForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo("workPlace", workplace);
-                          setShowWorkplaceForm(false);
-                        }}
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </>
-                ) : about?.workPlace ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+          <>
+            <div className="about">
+              <div className="about-title">About</div>
+              <div className="about-content">
+                {/* Workplace */}
+                {about?.workPlace ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <SiWorkplace />
                     </div>
-                    <div className="info-display-content">
-                      Works at{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {about?.workPlace}
-                      </span>
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        Works at <strong>{about?.workPlace}</strong>
+                      </div>
                     </div>
                     <button
                       onClick={() => setShowWorkplaceForm(true)}
-                      className="info-display-btn"
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -560,55 +553,28 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowWorkplaceForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add a workplace</span>
                   </button>
                 )}
-              </div>
 
-              {/* Secondary School */}
-              <div className="about-section">
-                {showSchoolForm ? (
-                  <>
-                    <input
-                      value={secondaryschool}
-                      placeholder="Secondary school"
-                      onChange={(e) => setSecondaryschool(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowSchoolForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo("secondarySchool", secondaryschool);
-                          setShowSchoolForm(false);
-                        }}
-                      >
-                        save
-                      </button>
-                    </div>
-                  </>
-                ) : about?.secondarySchool ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+                {/* Secondary School */}
+                {about?.secondarySchool ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <RiSchoolLine />
                     </div>
-                    <div className="info-display-content">
-                      Went to{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {about?.secondarySchool}
-                      </span>
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        Went to <strong>{about?.secondarySchool}</strong>
+                      </div>
+                      <div className="about-card-subtext">High School</div>
                     </div>
                     <button
-                      onClick={() => setSecondaryschool(true)}
-                      className="info-display-btn"
+                      onClick={() => setShowSchoolForm(true)}
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -616,55 +582,28 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowSchoolForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add secondary school</span>
                   </button>
                 )}
-              </div>
 
-              {/* University */}
-              <div className="about-section">
-                {showUniversityForm ? (
-                  <>
-                    <input
-                      value={university}
-                      placeholder="University"
-                      onChange={(e) => setUniversity(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowUniversityForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo("university", university);
-                          setShowUniversityForm(false);
-                        }}
-                      >
-                        save
-                      </button>
-                    </div>{" "}
-                  </>
-                ) : about?.university ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+                {/* University */}
+                {about?.university ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <LiaUniversitySolid />
                     </div>
-                    <div className="info-display-content">
-                      Studied at{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {about?.university}
-                      </span>
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        Studied at <strong>{about?.university}</strong>
+                      </div>
+                      <div className="about-card-subtext">Computer Science</div>
                     </div>
                     <button
                       onClick={() => setShowUniversityForm(true)}
-                      className="info-display-btn"
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -672,55 +611,27 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowUniversityForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add university</span>
                   </button>
                 )}
-              </div>
 
-              {/* Current City */}
-              <div className="about-section">
-                {showCityForm ? (
-                  <>
-                    <input
-                      value={currentcity}
-                      placeholder="Current City"
-                      onChange={(e) => setCurrentcity(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowCityForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo("currentCity", currentcity);
-                          setShowCityForm(false);
-                        }}
-                      >
-                        save
-                      </button>
-                    </div>{" "}
-                  </>
-                ) : about?.currentCity ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+                {/* Current City */}
+                {about?.currentCity ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <IoHomeOutline />
                     </div>
-                    <div className="info-display-content">
-                      Lives in{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {about?.currentCity}
-                      </span>
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        Lives in <strong>{about?.currentCity}</strong>
+                      </div>
                     </div>
                     <button
                       onClick={() => setShowCityForm(true)}
-                      className="info-display-btn"
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -728,55 +639,27 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowCityForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add current city</span>
                   </button>
                 )}
-              </div>
 
-              {/* Hometown */}
-              <div className="about-section">
-                {showHometownForm ? (
-                  <>
-                    <input
-                      value={hometown}
-                      placeholder="Hometown"
-                      onChange={(e) => setHometown(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowHometownForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo("homeTown", hometown);
-                          setShowHometownForm(false);
-                        }}
-                      >
-                        save
-                      </button>
-                    </div>{" "}
-                  </>
-                ) : about?.homeTown ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+                {/* Hometown */}
+                {about?.homeTown ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <CiLocationOn />
                     </div>
-                    <div className="info-display-content">
-                      From{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {about?.homeTown}
-                      </span>
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        From <strong>{about?.homeTown}</strong>
+                      </div>
                     </div>
                     <button
                       onClick={() => setShowHometownForm(true)}
-                      className="info-display-btn"
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -784,58 +667,28 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowHometownForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add hometown</span>
                   </button>
                 )}
-              </div>
 
-              {/* Relationship Status */}
-              <div className="about-section">
-                {showRelationshipForm ? (
-                  <>
-                    <input
-                      value={relationshipstatus}
-                      placeholder="Relationship status"
-                      onChange={(e) => setRelationshipstatus(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowRelationshipForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo(
-                            "relationShipStatus",
-                            relationshipstatus
-                          );
-                          setShowRelationshipForm(false);
-                        }}
-                      >
-                        save
-                      </button>
-                    </div>{" "}
-                  </>
-                ) : about?.relationShipStatus ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+                {/* Relationship Status */}
+                {about?.relationShipStatus ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <GiRelationshipBounds />
                     </div>
-                    <div className="info-display-content">
-                      Relationship status{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {about?.relationShipStatus}
-                      </span>
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        Relationship status{" "}
+                        <strong>{about?.relationShipStatus}</strong>
+                      </div>
                     </div>
                     <button
                       onClick={() => setShowRelationshipForm(true)}
-                      className="info-display-btn"
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -843,52 +696,27 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowRelationshipForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add relationship status</span>
                   </button>
                 )}
-              </div>
 
-              {/* Gender */}
-              <div className="about-section">
-                {showGenderForm ? (
-                  <>
-                    <input
-                      value={gender}
-                      placeholder="Gender"
-                      onChange={(e) => setGender(e.target.value)}
-                    />
-                    <div className="add-cancel">
-                      <button
-                        onClick={() => setShowGenderForm(false)}
-                        className="cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="save-btn"
-                        onClick={() => {
-                          saveAboutInfo("gender", gender);
-                          setShowGenderForm(false);
-                        }}
-                      >
-                        save
-                      </button>
-                    </div>{" "}
-                  </>
-                ) : about?.gender ? (
-                  <div className="info-display">
-                    <div className="info-display-icon">
+                {/* Gender */}
+                {about?.gender ? (
+                  <div className="about-card">
+                    <div className="about-card-icon">
                       <SiWorkplace />
                     </div>
-                    <div className="info-display-content">
-                      Gender {about?.gender}
+                    <div className="about-card-content">
+                      <div className="about-card-text">
+                        Gender <strong>{about?.gender}</strong>
+                      </div>
                     </div>
                     <button
                       onClick={() => setShowGenderForm(true)}
-                      className="info-display-btn"
+                      className="about-card-menu"
                     >
                       <PiDotsThreeBold />
                     </button>
@@ -896,15 +724,352 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => setShowGenderForm(true)}
-                    className="add-btn"
+                    className="add-info-btn"
                   >
-                    <CiCirclePlus size={20} />
+                    <CiCirclePlus size={22} />
                     <span>Add gender</span>
                   </button>
                 )}
               </div>
             </div>
-          </div>
+
+            {/* Modal Dialogs */}
+            {showWorkplaceForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowWorkplaceForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add Workplace</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowWorkplaceForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={workplace}
+                      placeholder="Workplace"
+                      onChange={(e) => setWorkplace(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowWorkplaceForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("workPlace", workplace);
+                        setShowWorkplaceForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showSchoolForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowSchoolForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add Secondary School</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowSchoolForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={secondaryschool}
+                      placeholder="Secondary school"
+                      onChange={(e) => setSecondaryschool(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowSchoolForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("secondarySchool", secondaryschool);
+                        setShowSchoolForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showUniversityForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowUniversityForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add University</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowUniversityForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={university}
+                      placeholder="University"
+                      onChange={(e) => setUniversity(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowUniversityForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("university", university);
+                        setShowUniversityForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showCityForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowCityForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add Current City</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowCityForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={currentcity}
+                      placeholder="Current City"
+                      onChange={(e) => setCurrentcity(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowCityForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("currentCity", currentcity);
+                        setShowCityForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showHometownForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowHometownForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add Hometown</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowHometownForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={hometown}
+                      placeholder="Hometown"
+                      onChange={(e) => setHometown(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowHometownForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("homeTown", hometown);
+                        setShowHometownForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showRelationshipForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowRelationshipForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add Relationship Status</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowRelationshipForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={relationshipstatus}
+                      placeholder="Relationship status"
+                      onChange={(e) => setRelationshipstatus(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowRelationshipForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("relationShipStatus", relationshipstatus);
+                        setShowRelationshipForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showGenderForm && (
+              <div
+                className="modal-overlay"
+                onClick={() => setShowGenderForm(false)}
+              >
+                <div
+                  className="modal-dialog"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="modal-header">
+                    <h3>Add Gender</h3>
+                    <button
+                      className="modal-close"
+                      onClick={() => setShowGenderForm(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <input
+                      className="modal-input"
+                      value={gender}
+                      placeholder="Gender"
+                      onChange={(e) => setGender(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      onClick={() => setShowGenderForm(false)}
+                      className="modal-cancel-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="modal-save-btn"
+                      onClick={() => {
+                        saveAboutInfo("gender", gender);
+                        setShowGenderForm(false);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
         {activeTab === "Photos" && (
           <div className="photos-cont">

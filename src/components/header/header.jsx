@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./header.css";
+import { getApiUrl } from "../../config/api";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
@@ -8,6 +9,8 @@ import { FiMessageSquare } from "react-icons/fi";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaUserFriends, FaSignOutAlt } from "react-icons/fa";
+import { HiUserCircle, HiUsers, HiLogout } from "react-icons/hi";
+import { RiUserLine, RiTeamLine, RiLogoutBoxRLine } from "react-icons/ri";
 
 export default function Header() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -47,18 +50,15 @@ export default function Header() {
       const sessionKey = localStorage.getItem("sessionId");
       const userId = localStorage.getItem("userId");
 
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/logout",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            sessionId: sessionKey,
-            userId: userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl("/user/api/logout"), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          sessionId: sessionKey,
+          userId: userId,
+        },
+      });
 
       if (!response.ok) {
         console.log("session id not found");
@@ -148,24 +148,22 @@ export default function Header() {
                   className="dropdown-item"
                   onClick={() => navigate("/profile")}
                 >
-                  <FaUser className="dropdown-icon" /> View Profile
+                  <HiUserCircle className="dropdown-icon" />
+                  <span>View Profile</span>
                 </div>
                 <div
                   className="dropdown-item"
                   onClick={() => navigate("/friends")}
                 >
-                  <FaUserFriends className="dropdown-icon" /> Friends
+                  <RiTeamLine className="dropdown-icon" />
+                  <span>Friends</span>
                 </div>
                 <div
-                  className="dropdown-item"
+                  className="dropdown-item dropdown-item-logout"
                   onClick={logout}
-                  style={{ color: "red" }}
                 >
-                  <FaSignOutAlt
-                    className="dropdown-icon"
-                    style={{ color: "red" }}
-                  />{" "}
-                  Logout
+                  <RiLogoutBoxRLine className="dropdown-icon" />
+                  <span>Logout</span>
                 </div>
               </div>
             )}

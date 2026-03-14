@@ -4,6 +4,7 @@ import DoneAllOutlinedIcon from "@mui/icons-material/DoneAllOutlined";
 import { useState } from "react";
 import { MdEdit, MdDelete, MdMoreVert } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { FaShare } from "react-icons/fa";
 
 export default function Message({
   message,
@@ -17,60 +18,6 @@ export default function Message({
 
   const getRelativeTime = (epoch) => {
     return formatDistanceToNowStrict(new Date(epoch), { addSuffix: true });
-  };
-
-  // Function to render message content with clickable links
-  const renderMessageContent = (content) => {
-    if (!content) return null;
-
-    // URL regex pattern
-    const urlPattern = /(https?:\/\/[^\s]+)/g;
-    const parts = content.split(urlPattern);
-
-    return parts.map((part, index) => {
-      if (part.match(urlPattern)) {
-        // Check if it's an internal link to our app
-        const isInternalLink =
-          part.includes(window.location.hostname) ||
-          part.includes("social-media0282");
-
-        return (
-          <a
-            key={index}
-            href={part}
-            style={{
-              color: isUserMessage ? "#E0F2FE" : "#60A5FA",
-              textDecoration: "underline",
-              wordBreak: "break-all",
-              cursor: "pointer",
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              if (isInternalLink) {
-                // Extract path and query params for internal navigation
-                try {
-                  const url = new URL(part);
-                  const path = url.pathname;
-                  const search = url.search;
-                  navigate(path + search);
-                } catch (err) {
-                  // Fallback to opening in new tab if URL parsing fails
-                  window.open(part, "_blank");
-                }
-              } else {
-                // External link - open in new tab
-                window.open(part, "_blank");
-              }
-            }}
-          >
-            {part}
-          </a>
-        );
-      }
-      return <span key={index}>{part}</span>;
-    });
   };
 
   const handleEdit = () => {
@@ -171,10 +118,45 @@ export default function Message({
       <div className="convo-page-side2-convo-msg-msg">
         {message.isDeleted ? (
           <em style={{ color: "#888" }}>This message was deleted</em>
-        ) : (
-          <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-            {renderMessageContent(message?.content)}
+        ) : message?.content?.includes("shared a post") ? (
+          <div 
+            className="shared-post-message"
+            onClick={() => {
+              const lines = message.content.split("\n");
+              const urlLine = lines.find(line => line.includes("postId="));
+              if (urlLine) {
+                const postIdMatch = urlLine.match(/postId=(\d+)/);
+                if (postIdMatch) {
+                  navigate(`/home?postId=${postIdMatch[1]}`);
+                }
+              }
+            }}
+            style={{
+              cursor: "pointer",
+              padding: "8px",
+              borderRadius: "8px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(102, 126, 234, 0.3)",
+              transition: "all 0.2s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(102, 126, 234, 0.1)";
+              e.currentTarget.style.borderColor = "rgba(102, 126, 234, 0.5)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+              e.currentTarget.style.borderColor = "rgba(102, 126, 234, 0.3)";
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FaShare style={{ color: "#66b3ff", fontSize: "14px" }} />
+              <span style={{ color: "#e0e0e0" }}>
+                {message.content.split("\n")[0]}
+              </span>
+            </div>
           </div>
+        ) : (
+          message?.content
         )}
       </div>
       <div className="convo-page-side2-convo-msg-time">

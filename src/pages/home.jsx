@@ -1,13 +1,14 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import "./home.css";
 import "./emptyState.css";
 import Post from "../components/post/post";
 import Suggestion from "../components/suggestion/suggestion";
+import { getApiUrl } from "../config/api";
 import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import SentimentSatisfiedOutlinedIcon from "@mui/icons-material/SentimentSatisfiedOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { fetchLikes } from "./fetchLikes";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -19,14 +20,13 @@ export default function Home() {
   const [content, setContent] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
   const [feeling, setFeeling] = useState("");
-  const [location, setLocation] = useState("");
+  const [locationTag, setLocationTag] = useState("");
   const [posts, setPosts] = useState([]);
   const [suggestion, setSuggestions] = useState([]);
   const [buttonState, setButtonState] = useState("see more");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const postRefs = useRef({});
+  const location = useLocation();
 
   const toggleHeight = () => {
     setButtonState(buttonState === "see less" ? "see more" : "see less");
@@ -52,17 +52,14 @@ export default function Home() {
   };
   const fetchwithauth = async () => {
     let sessionKey = localStorage.getItem("sessionId");
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/validate",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId: sessionKey,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl("/user/api/validate"), {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId: sessionKey,
+      },
+    });
     if (!response.ok) {
       alert("session expired.Please login again");
       navigate("/login");
@@ -82,7 +79,7 @@ export default function Home() {
 
   const handleLocationClick = () => {
     setContent("location");
-    setLocation("📍 New York");
+    setLocationTag("📍 New York");
   };
 
   const handleUpload = async () => {
@@ -94,20 +91,17 @@ export default function Home() {
     formData.append("description", description);
     if (file) formData.append("file", file);
     if (feeling) formData.append("feeling", feeling);
-    if (location) formData.append("location", location);
+    if (locationTag) formData.append("location", locationTag);
 
     try {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/createpost",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            sessionId: sessionId,
-            userId: userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl("/post/createpost"), {
+        method: "POST",
+        body: formData,
+        headers: {
+          sessionId: sessionId,
+          userId: userId,
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to upload post");
 
@@ -125,16 +119,13 @@ export default function Home() {
         return;
       }
 
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/feed",
-        {
-          method: "GET",
-          headers: {
-            sessionId: sessionId,
-            userId: userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl("/post/feed"), {
+        method: "GET",
+        headers: {
+          sessionId: sessionId,
+          userId: userId,
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -142,7 +133,9 @@ export default function Home() {
 
       const postResp = await response.json();
       console.log("Fetched Posts:", postResp);
-      setPosts(postResp);
+      // Sort posts by createdAt in descending order (latest first)
+      const sortedPosts = postResp.sort((a, b) => b.createdAt - a.createdAt);
+      setPosts(sortedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -152,42 +145,18 @@ export default function Home() {
     getPosts();
   }, []);
 
-  // Scroll to specific post if postId is in URL
-  useEffect(() => {
-    const postId = searchParams.get("postId");
-    if (postId && posts.length > 0) {
-      setTimeout(() => {
-        const postElement = postRefs.current[postId];
-        if (postElement) {
-          postElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-          // Highlight the post briefly
-          postElement.style.boxShadow = "0 0 20px rgba(59, 130, 246, 0.6)";
-          setTimeout(() => {
-            postElement.style.boxShadow = "";
-          }, 2000);
-        }
-      }, 500);
-    }
-  }, [posts, searchParams]);
-
   useEffect(() => {
     console.log("Updated Posts State:", posts);
   }, [posts]);
 
   const getSuggestions = async () => {
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/suggestions",
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl("/friendship/suggestions"), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -208,6 +177,19 @@ export default function Home() {
   }, [dispatch]);
   const likes = useSelector((state) => state.likes.likes);
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const postId = searchParams.get("postId");
+    if (postId && posts.length > 0) {
+      setTimeout(() => {
+        const postElement = document.getElementById(`post-${postId}`);
+        if (postElement) {
+          postElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 500);
+    }
+  }, [location.search, posts]);
+
   return (
     <div className="whole">
       <div className="side1">
@@ -227,6 +209,37 @@ export default function Home() {
               className="thought-cont"
             />
           </div>
+
+          {/* File Preview Pill */}
+          {file && (
+            <div className="file-preview-pill">
+              <span className="file-icon">
+                {content === "image" ? "🖼️" : "🎥"}
+              </span>
+              <span className="file-name">{file.name}</span>
+              <button
+                className="remove-file"
+                onClick={() => {
+                  setFile(null);
+                  setPreviewUrl(null);
+                  setContent("");
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Image/Video Preview */}
+          {previewUrl && (
+            <div className="media-preview-container">
+              {content === "image" ? (
+                <img src={previewUrl} alt="Preview" className="media-preview" />
+              ) : content === "video" ? (
+                <video src={previewUrl} controls className="media-preview" />
+              ) : null}
+            </div>
+          )}
 
           <div className="contents">
             {/* Photo Upload */}
@@ -287,6 +300,7 @@ export default function Home() {
               <div className="pvfl">Location</div>
             </div>
 
+            {/* Share Button */}
             <button className="btn-share" onClick={handleUpload}>
               Share post
             </button>
@@ -306,11 +320,7 @@ export default function Home() {
           ) : (
             posts.map((item) => {
               return (
-                <div
-                  key={item.postId}
-                  ref={(el) => (postRefs.current[item.postId] = el)}
-                  style={{ transition: "box-shadow 0.3s ease" }}
-                >
+                <div key={item.postId} id={`post-${item.postId}`}>
                   <Post postItem={item} likes={likes} />
                 </div>
               );

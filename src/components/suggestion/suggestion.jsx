@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./suggestion.css";
+import { getApiUrl } from "../../config/api";
 export default function Suggestion({ suggestedItem }) {
   const sessionId = localStorage.getItem("sessionId");
   const userId = localStorage.getItem("userId");
@@ -8,7 +9,7 @@ export default function Suggestion({ suggestedItem }) {
 
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${suggestedItem?.userId}`,
+      getApiUrl(`/friendship/mutual-friends/${suggestedItem?.userId}`),
       {
         method: "GET",
         headers: {
@@ -34,13 +35,10 @@ export default function Suggestion({ suggestedItem }) {
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/pending-requests",
-        {
-          method: "GET",
-          headers: { userId: userId, sessionId: sessionId },
-        }
-      );
+      const response = await fetch(getApiUrl("/friendship/pending-requests"), {
+        method: "GET",
+        headers: { userId: userId, sessionId: sessionId },
+      });
 
       if (!response.ok) {
         console.error("Failed to fetch pending requests");
@@ -58,25 +56,19 @@ export default function Suggestion({ suggestedItem }) {
   }, []);
 
   const sendFriendRequest = async (id) => {
-    await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friendrequest/${id}`,
-      {
-        method: "POST",
-        headers: { userId: userId, sessionId: sessionId },
-      }
-    );
+    await fetch(getApiUrl(`/friendship/friendrequest/${id}`), {
+      method: "POST",
+      headers: { userId: userId, sessionId: sessionId },
+    });
 
     setFriendRequests((prev) => ({ ...prev, [id]: true }));
   };
 
   const cancelFriendRequest = async (id) => {
-    await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/cancelrequest/${id}`,
-      {
-        method: "DELETE",
-        headers: { userId: userId, sessionId: sessionId },
-      }
-    );
+    await fetch(getApiUrl(`/friendship/cancelrequest/${id}`), {
+      method: "DELETE",
+      headers: { userId: userId, sessionId: sessionId },
+    });
 
     setFriendRequests((prev) => {
       const updated = { ...prev };

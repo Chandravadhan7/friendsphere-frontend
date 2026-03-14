@@ -5,7 +5,7 @@
   justify-content: center;
   gap: 2.5%;
   padding-top: 15px;
-  background-color: #0e1525;
+  background-color: #0a101f;
 }
 .side2 {
   width: 22%;
@@ -62,7 +62,7 @@
   /* border: 1px solid red; */
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #1f2a3c 0%, #1a2332 100%);
+  background: linear-gradient(135deg, #031429 0%, #031429 100%);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
@@ -129,7 +129,8 @@
   gap: 1.5%;
   height: auto;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 .contents1 {
   width: 14%;
@@ -169,7 +170,7 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   flex-shrink: 0;
-  margin-left:2%;
+  margin-left: 2%;
 }
 
 .btn-share:hover {
@@ -180,6 +181,77 @@
 
 .btn-share:active {
   transform: scale(0.98);
+}
+
+.file-preview-pill {
+  width: 45%;
+  margin: 8px 0 8px 3%;
+  padding: 6px 12px;
+  background-color: #1f2a3c;
+  border: 1px solid #3b82f6;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 13px;
+}
+
+.file-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #e0e0e0;
+  font-size: 13px;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  color: #ff4444;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.remove-file:hover {
+  background-color: rgba(255, 68, 68, 0.1);
+  transform: scale(1.1);
+}
+
+.media-preview-container {
+  width: 94%;
+  margin: 8px 3%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  max-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-preview {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
 }
 
 .side12 {

@@ -1,44 +1,62 @@
 .convo-page-side2-convo-msg {
-    max-width: 50%;
-    padding: 10px 15px;
-    border-radius: 10px;
-    color: white;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    background-color: #172949;
-    border: 1px solid #152135;
-    display: flex;
-    flex-direction: column;
-    position: relative; /* Optional for more control */
+  max-width: 50%;
+  padding: 10px 15px;
+  border-radius: 10px;
+  color: white;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  background-color: #172949;
+  border: 1px solid #152135;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Optional for more control */
 }
 
 .convo-page-side2-convo-msg-msg {
-    width: 100%;
-    text-align: left;
+  width: 100%;
+  text-align: left;
 }
 
 .convo-page-side2-convo-msg-time {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    align-self: flex-end; /* push to the right */
-    gap: 4px;
-    margin-top: 5px;
-    font-size: 10px;
-    color: #ccc;
-    /* border: 1px solid black; */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: flex-end; /* push to the right */
+  gap: 4px;
+  margin-top: 5px;
+  font-size: 10px;
+  color: #ccc;
+  /* border: 1px solid black; */
 }
 
 .time {
-    width: auto;
-    border: none;
+  width: auto;
+  border: none;
 }
 
 .tick {
-    width: 12px;
-    height: 12px;
-    border: none;
-    background-size: contain;
-    background-repeat: no-repeat;
-    /* border: 1px solid red; */
+  width: 12px;
+  height: 12px;
+  border: none;
+  background-size: contain;
+  background-repeat: no-repeat;
+  /* border: 1px solid red; */
+}
+
+.shared-post-message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shared-post-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.shared-post-link {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  white-space: pre-wrap;
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
+import { getApiUrl } from "../config/api";
 import "./signup.css";
 
 const Signup = () => {
@@ -43,20 +44,17 @@ const Signup = () => {
     setMessage("");
 
     try {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: formData.username,
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await fetch(getApiUrl("/user/api/signup"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       if (response.ok) {
         const result = await response.text();
@@ -91,21 +89,27 @@ const Signup = () => {
     setMessage("");
 
     try {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/google-login",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken: credentialResponse.credential }),
-        }
-      );
+      const response = await fetch(getApiUrl("/user/api/google-login"), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken: credentialResponse.credential }),
+      });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Google signup failed");
+        let errorMessage = "Google signup failed";
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } else {
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const loginResponse = await response.json();
@@ -260,7 +264,7 @@ const Signup = () => {
                 size="large"
                 text="signup_with"
                 shape="rectangular"
-                width="100%"
+                width="350"
               />
             </div>
           </div>

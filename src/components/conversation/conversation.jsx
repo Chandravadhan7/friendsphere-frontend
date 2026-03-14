@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./conversation.css";
+import { getApiUrl } from "../../config/api";
 import { RiCheckDoubleLine } from "react-icons/ri";
 import { GoDotFill } from "react-icons/go";
 
@@ -12,68 +13,10 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
   const [convo, setConvo] = useState(null);
   const [unseenMessage, setUnseenMessage] = useState([]);
   const [latestMessage, setLatestMessage] = useState(null);
-  const [groupMemberNames, setGroupMemberNames] = useState([]);
-  const [displayName, setDisplayName] = useState("Loading...");
 
   const getParticipants = async () => {
-    try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${conversationId}`,
-        {
-          method: "GET",
-          headers: {
-            sessionId: sessionId,
-            userId: userId,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch participants");
-      }
-
-      const participantsResponse = await response.json();
-      setParticipants(participantsResponse);
-
-      const otherUser = participantsResponse.find((p) => p.userId !== userId);
-      setOtherUserId(otherUser?.userId);
-
-      // Fetch names for all participants (for groups)
-      const memberNames = await Promise.all(
-        participantsResponse
-          .filter((p) => p.userId !== userId) // Exclude current user
-          .map(async (participant) => {
-            try {
-              const userRes = await fetch(
-                `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${participant.userId}`,
-                {
-                  method: "GET",
-                  headers: { sessionId, userId },
-                }
-              );
-              if (userRes.ok) {
-                const user = await userRes.json();
-                return user.name;
-              }
-            } catch (err) {
-              console.debug("Failed to fetch user name", err);
-            }
-            return "Unknown";
-          })
-      );
-      setGroupMemberNames(memberNames.filter(Boolean));
-    } catch (err) {
-      console.error("Error fetching participants:", err);
-    }
-  };
-
-  useEffect(() => {
-    getParticipants();
-  }, [conversationId]);
-
-  const getUser = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${otherUserId}`,
+      getApiUrl(`/conversation-participants/${conversationId}`),
       {
         method: "GET",
         headers: {
@@ -82,6 +25,30 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
         },
       }
     );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch participants");
+    }
+
+    const participantsResponse = await response.json();
+    setParticipants(participantsResponse);
+
+    const otherUser = participantsResponse.find((p) => p.userId !== userId);
+    setOtherUserId(otherUser?.userId);
+  };
+
+  useEffect(() => {
+    getParticipants();
+  }, [conversationId]);
+
+  const getUser = async () => {
+    const response = await fetch(getApiUrl(`/user/${otherUserId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch user details");
@@ -99,7 +66,7 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
 
   const getConversation = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations/${conversationId}`,
+      getApiUrl(`/conversations/${conversationId}`),
       {
         method: "GET",
         headers: {
@@ -121,31 +88,10 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
     getConversation();
   }, [conversationId]);
 
-  // Update display name when data is loaded
-  useEffect(() => {
-    if (convo?.isGroup) {
-      // For groups, show group title or member names
-      if (convo.title) {
-        setDisplayName(convo.title);
-      } else if (groupMemberNames.length > 0) {
-        setDisplayName(groupMemberNames.join(", "));
-      } else {
-        setDisplayName("Group Chat");
-      }
-    } else {
-      // For 1-on-1 chats, show the other user's name
-      if (userDetails?.name) {
-        setDisplayName(userDetails.name);
-      } else {
-        setDisplayName("Chat");
-      }
-    }
-  }, [convo, userDetails, groupMemberNames]);
-
   const getUnseenMessage = async () => {
     try {
       const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages/latest-unseen-message/${conversationId}`,
+        getApiUrl(`/messages/latest-unseen-message/${conversationId}`),
         {
           method: "GET",
           headers: {
@@ -171,7 +117,7 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
   const getLatestMessages = async () => {
     try {
       const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages/latest-message/${conversationId}`,
+        getApiUrl(`/messages/latest-message/${conversationId}`),
         {
           method: "GET",
           headers: {
@@ -202,49 +148,27 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
   }, [conversationId, otherUserId]);
 
   const setLastSeen = async () => {
-    try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/last-seen/${conversationId}/${userId}`,
-        {
-          method: "PATCH",
-          headers: {
-            sessionId,
-            userId,
-          },
-          signal: AbortSignal.timeout(5000), // 5 second timeout
-        }
-      );
-
-      if (response.ok) {
-        setUnseenMessage([]);
-      } else {
-        console.warn("Failed to update last seen status:", response.status);
+    const response = await fetch(
+      getApiUrl(
+        `/conversation-participants/last-seen/${conversationId}/${userId}`
+      ),
+      {
+        method: "PATCH",
+        headers: {
+          sessionId,
+          userId,
+        },
       }
-    } catch (err) {
-      // Silently handle errors - don't block conversation opening
-      console.debug("Last seen update failed (non-critical):", err.message);
+    );
+
+    if (response.ok) {
+      setUnseenMessage([]);
     }
   };
 
   const handleConversationClick = async () => {
-    // Don't wait for setLastSeen to complete - open conversation immediately
-    setLastSeen(); // Fire and forget
+    await setLastSeen();
     onClick();
-  };
-
-  // Function to get preview text for messages (hide URLs)
-  const getMessagePreview = (content) => {
-    if (!content) return "";
-
-    // Check if message contains "shared a post" pattern
-    if (content.includes("shared a post")) {
-      // Extract just the "username shared a post" part, remove URL
-      const lines = content.split("\n");
-      return lines[0]; // Return first line only (username shared a post)
-    }
-
-    // For other messages, truncate if too long
-    return content.length > 50 ? content.substring(0, 50) + "..." : content;
   };
 
   return (
@@ -260,19 +184,31 @@ export default function Conversation({ conversationId, onClick, isSelected }) {
         />
       </div>
       <div className="chat-cont-name">
-        <div className="name-u">{displayName}</div>
+        <div className="name-u">
+          {convo?.isGroup
+            ? convo?.title || "Unnamed Group"
+            : userDetails?.name || "Unknown User"}
+        </div>
         <div className="last-msg">
           {unseenMessage.length > 0 ? (
             <>
               <GoDotFill style={{ color: "#3B82F6", fontSize: "120%" }} />
-              <div>{getMessagePreview(unseenMessage[0]?.content)}</div>
+              <div>
+                {unseenMessage[0]?.content?.includes("shared a post")
+                  ? unseenMessage[0].content.split("\n")[0]
+                  : unseenMessage[0]?.content}
+              </div>
             </>
           ) : (
             <>
               {latestMessage && latestMessage.senderId === userId && (
                 <RiCheckDoubleLine style={{ fontSize: "120%" }} />
               )}
-              <div>{getMessagePreview(latestMessage?.content)}</div>
+              <div>
+                {latestMessage?.content?.includes("shared a post")
+                  ? latestMessage.content.split("\n")[0]
+                  : latestMessage?.content}
+              </div>
             </>
           )}
         </div>

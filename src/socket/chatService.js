@@ -1,19 +1,9 @@
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
-// Automatically use wss:// if the site is hosted on https://, otherwise http://
-const getWebSocketURL = () => {
-  if (process.env.REACT_APP_WS_URL) {
-    return process.env.REACT_APP_WS_URL;
-  }
-
-  // Auto-detect protocol based on current page protocol
-  const protocol = window.location.protocol === "https:" ? "https:" : "http:";
-  const host = "ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080";
-  return `${protocol}//${host}/ws`;
-};
-
-const WS_ENDPOINT = getWebSocketURL();
+const WS_ENDPOINT =
+  process.env.REACT_APP_WS_URL ||
+  "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/ws";
 
 let client = null;
 let connectPromise = null;

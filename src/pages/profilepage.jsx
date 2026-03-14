@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./profilepage.css";
+import { getApiUrl } from "../config/api";
 import Post from "../components/post/post";
 import { SiWorkplace } from "react-icons/si";
 import { RiSchoolLine } from "react-icons/ri";
@@ -25,13 +26,10 @@ export default function FriendsProfile() {
   let [friends, setFriends] = useState([]);
 
   const getPosts = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/post/posts/${user_id}`,
-      {
-        method: "GET",
-        headers: { sessionId, userId },
-      }
-    );
+    const response = await fetch(getApiUrl(`/post/posts/${user_id}`), {
+      method: "GET",
+      headers: { sessionId, userId },
+    });
 
     if (!response.ok) throw new Error("failed to fetch posts");
 
@@ -40,13 +38,10 @@ export default function FriendsProfile() {
   };
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${user_id}`,
-      {
-        method: "GET",
-        headers: { sessionId, userId },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${user_id}`), {
+      method: "GET",
+      headers: { sessionId, userId },
+    });
 
     if (!response.ok) throw new Error("failed to fetch user details");
 
@@ -63,13 +58,10 @@ export default function FriendsProfile() {
 
   const checkOrCreateConversation = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations`,
-        {
-          method: "GET",
-          headers: { sessionId, userId },
-        }
-      );
+      const response = await fetch(getApiUrl(`/conversations`), {
+        method: "GET",
+        headers: { sessionId, userId },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch conversations");
 
@@ -78,10 +70,10 @@ export default function FriendsProfile() {
 
       for (const convo of allConversations) {
         const res = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+          getApiUrl(`/conversation-participants/${convo.conversationId}`),
           {
             headers: { sessionId, userId },
-          }
+          },
         );
 
         if (!res.ok) continue;
@@ -89,7 +81,7 @@ export default function FriendsProfile() {
         const participants = await res.json();
 
         const isOther = participants.some(
-          (p) => p.userId === parseInt(user_id)
+          (p) => p.userId === parseInt(user_id),
         );
         const isSelf = participants.some((p) => p.userId === parseInt(userId));
 
@@ -119,18 +111,15 @@ export default function FriendsProfile() {
       creatorId: userId,
     };
 
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId,
-          userId,
-        },
-        body: JSON.stringify(conversation),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversations"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId,
+        userId,
+      },
+      body: JSON.stringify(conversation),
+    });
 
     if (!response.ok) throw new Error("Unable to create conversation");
 
@@ -150,18 +139,15 @@ export default function FriendsProfile() {
       isAdmin: uid === userId,
     };
 
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId,
-          userId,
-        },
-        body: JSON.stringify(participant),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversation-participants"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId,
+        userId,
+      },
+      body: JSON.stringify(participant),
+    });
 
     if (!response.ok) throw new Error("Unable to add participant");
 
@@ -171,13 +157,10 @@ export default function FriendsProfile() {
 
   const getBio = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio/${user_id}`,
-        {
-          method: "GET",
-          headers: { userId, sessionId },
-        }
-      );
+      const response = await fetch(getApiUrl(`/bio/${user_id}`), {
+        method: "GET",
+        headers: { userId, sessionId },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch bio");
 
@@ -201,14 +184,14 @@ export default function FriendsProfile() {
 
   const getMutualsFriends = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${user_id}`,
+      getApiUrl(`/friendship/mutual-friends/${user_id}`),
       {
         method: "GET",
         headers: {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -226,16 +209,13 @@ export default function FriendsProfile() {
   }, []);
 
   const getAllFriends = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${user_id}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/friendship/friends/${user_id}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch friends");
@@ -300,59 +280,72 @@ export default function FriendsProfile() {
         {activeTab === "Posts" && (
           <>
             <div className="user-info">
+              <div className="user-info-title">About</div>
               {about?.workPlace && (
-                <div className="info-display">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <SiWorkplace />
                   </div>
-                  <div className="info-display-content">{about?.workPlace}</div>
+                  <div className="about-text">
+                    <span className="about-label">Works at</span>
+                    <span className="about-value">{about.workPlace}</span>
+                  </div>
                 </div>
               )}
               {about?.secondarySchool && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <RiSchoolLine />
                   </div>
-                  <div className="info-display-content">
-                    {about?.secondarySchool}
+                  <div className="about-text">
+                    <span className="about-label">Went to</span>
+                    <span className="about-value">{about.secondarySchool}</span>
                   </div>
                 </div>
               )}
               {about?.university && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <LiaUniversitySolid />
                   </div>
-                  <div className="info-display-content">
-                    {about?.university}
+                  <div className="about-text">
+                    <span className="about-label">Studied at</span>
+                    <span className="about-value">{about.university}</span>
                   </div>
                 </div>
               )}
               {about?.currentCity && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <IoHomeOutline />
                   </div>
-                  <div className="info-display-content">
-                    {about?.currentCity}
+                  <div className="about-text">
+                    <span className="about-label">Lives in</span>
+                    <span className="about-value">{about.currentCity}</span>
                   </div>
                 </div>
               )}
               {about?.homeTown && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <CiLocationOn />
                   </div>
-                  <div className="info-display-content">{about?.homeTown}</div>
+                  <div className="about-text">
+                    <span className="about-label">From</span>
+                    <span className="about-value">{about.homeTown}</span>
+                  </div>
                 </div>
               )}
               {about?.relationShipStatus && (
-                <div className="info-display1">
-                  <div className="info-display-icon1">
+                <div className="about-info-item">
+                  <div className="about-icon-container">
                     <GiRelationshipBounds />
                   </div>
-                  <div className="info-display-content">
-                    {about?.relationShipStatus}
+                  <div className="about-text">
+                    <span className="about-label">Relationship</span>
+                    <span className="about-value">
+                      {about.relationShipStatus}
+                    </span>
                   </div>
                 </div>
               )}

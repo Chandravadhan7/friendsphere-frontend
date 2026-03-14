@@ -2,6 +2,7 @@ import { use, useEffect, useRef } from "react";
 import "./chatbox.css";
 import { useState } from "react";
 import Message from "../components/message/message";
+import { getApiUrl } from "../config/api";
 import { RxCross1 } from "react-icons/rx";
 import { MdBlock } from "react-icons/md";
 import { MdOutlineReportProblem } from "react-icons/md";
@@ -11,8 +12,6 @@ import EmojiPicker from "emoji-picker-react";
 import { formatDistanceToNowStrict } from "date-fns";
 
 export default function ChatBox({ conversationId }) {
-  console.log("ChatBox rendered with conversationId:", conversationId);
-
   let [message, setMessage] = useState("");
   let [userDetails, setUserDetails] = useState(null);
   let [messages, setMessages] = useState([]);
@@ -105,18 +104,15 @@ export default function ChatBox({ conversationId }) {
       } catch (err) {
         console.error("send via socket failed", err);
         // fallback to REST POST
-        const response = await fetch(
-          "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              sessionId: sessionId,
-              userId: userId,
-            },
-            body: JSON.stringify(inputobj),
-          }
-        );
+        const response = await fetch(getApiUrl("/messages"), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            sessionId: sessionId,
+            userId: userId,
+          },
+          body: JSON.stringify(inputobj),
+        });
         if (!response.ok) throw new Error("unable to send message");
         setMessage("");
         await getMessages();
@@ -149,7 +145,7 @@ export default function ChatBox({ conversationId }) {
     if (window.confirm("Are you sure you want to delete this conversation?")) {
       try {
         const response = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations/${conversationId}`,
+          getApiUrl(`/conversations/${conversationId}`),
           {
             method: "DELETE",
             headers: {
@@ -180,7 +176,7 @@ export default function ChatBox({ conversationId }) {
         );
 
         const response = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${conversationId}/${userId}`,
+          getApiUrl(`/conversation-participants/${conversationId}/${userId}`),
           {
             method: "DELETE",
             headers: {
@@ -208,16 +204,13 @@ export default function ChatBox({ conversationId }) {
   };
 
   const getMessages = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages/${conversationId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/messages/${conversationId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch messages");
@@ -310,7 +303,7 @@ export default function ChatBox({ conversationId }) {
 
   const getParticipants = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${conversationId}`,
+      getApiUrl(`/conversation-participants/${conversationId}`),
       {
         method: "GET",
         headers: {
@@ -337,7 +330,7 @@ export default function ChatBox({ conversationId }) {
   const getGroupMembers = async () => {
     try {
       const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${conversationId}`,
+        getApiUrl(`/conversation-participants/${conversationId}`),
         {
           headers: { sessionId, userId: String(userId) },
         }
@@ -351,7 +344,7 @@ export default function ChatBox({ conversationId }) {
       for (const participant of participants) {
         try {
           const userRes = await fetch(
-            `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${participant.userId}`,
+            getApiUrl(`/user/${participant.userId}`),
             { headers: { sessionId, userId: String(userId) } }
           );
           if (userRes.ok) {
@@ -383,16 +376,13 @@ export default function ChatBox({ conversationId }) {
   }, [convo]);
 
   const getUser = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${otherUserId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/user/${otherUserId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch user details");
@@ -409,7 +399,7 @@ export default function ChatBox({ conversationId }) {
     try {
       // Fetch all conversations for current user
       const myConvosRes = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations?userId=${userId}`,
+        getApiUrl(`/conversations?userId=${userId}`),
         {
           headers: { sessionId, userId: String(userId) },
         }
@@ -429,7 +419,7 @@ export default function ChatBox({ conversationId }) {
       const common = [];
       for (const group of groups) {
         const participantsRes = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${group.conversationId}`,
+          getApiUrl(`/conversation-participants/${group.conversationId}`),
           { headers: { sessionId, userId: String(userId) } }
         );
 
@@ -455,7 +445,7 @@ export default function ChatBox({ conversationId }) {
             for (const participant of participants) {
               try {
                 const userRes = await fetch(
-                  `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${participant.userId}`,
+                  getApiUrl(`/user/${participant.userId}`),
                   { headers: { sessionId, userId: String(userId) } }
                 );
                 if (userRes.ok) {
@@ -515,7 +505,7 @@ export default function ChatBox({ conversationId }) {
 
   const getConversation = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations/${conversationId}`,
+      getApiUrl(`/conversations/${conversationId}`),
       {
         method: "GET",
         headers: {
@@ -537,7 +527,9 @@ export default function ChatBox({ conversationId }) {
 
   const setLastSeen = async () => {
     const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/last-seen/${conversationId}/${otherUserId}`,
+      getApiUrl(
+        `/conversation-participants/last-seen/${conversationId}/${otherUserId}`
+      ),
       {
         method: "PATCH",
         headers: {

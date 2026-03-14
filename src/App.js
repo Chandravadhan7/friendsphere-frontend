@@ -2,6 +2,7 @@ import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { getApiUrl } from "./config/api";
 import LoginPage from "./pages/loginpage";
 import Home from "./pages/home";
 import Header from "./components/header/header";
@@ -22,78 +23,52 @@ export default function App() {
 
   // Update online status on mount and unmount
   useEffect(() => {
-    // TEMPORARILY DISABLED: Enable this when backend endpoint is ready
-    return;
-
     const userId = localStorage.getItem("userId");
     const sessionId = localStorage.getItem("sessionId");
 
-    if (!userId || !sessionId) {
-      console.log("No user session found, skipping online status updates");
-      return;
-    }
+    if (userId && sessionId) {
+      // Set online on mount
+      fetch(getApiUrl(`/user/${userId}/online-status?isOnline=true`), {
+        method: "PATCH",
+        headers: {
+          sessionId: sessionId,
+          userId: userId,
+        },
+      }).catch((err) => console.error("Failed to set online status:", err));
 
-    const updateOnlineStatus = async (isOnline) => {
-      try {
-        // Try PUT method first (common for updates), fallback to POST if needed
-        const response = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${userId}/online-status?isOnline=${isOnline}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              sessionId: sessionId,
-              userId: userId,
-            },
-            signal: AbortSignal.timeout(5000), // 5 second timeout
-          }
-        );
-
-        if (!response.ok) {
-          // If PUT fails with 405, the endpoint might not exist or use different method
-          if (response.status === 405 || response.status === 404) {
-            console.debug(
-              "Online status endpoint not available or uses different method"
-            );
-            return; // Silently skip
-          }
-          console.warn(`Failed to update online status: ${response.status}`);
-        }
-      } catch (err) {
-        // Silently fail if backend is not accessible
-        if (err.name !== "AbortError" && err.name !== "TimeoutError") {
-          console.debug("Online status update failed:", err.message);
-        }
-      }
-    };
-
-    // Set online on mount
-    updateOnlineStatus(true);
-
-    // Set offline on page close/refresh using sendBeacon (non-blocking)
-    const handleBeforeUnload = () => {
-      try {
+      // Set offline on page close/refresh
+      const handleBeforeUnload = () => {
         navigator.sendBeacon(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${userId}/online-status?isOnline=false`
+          getApiUrl(`/user/${userId}/online-status?isOnline=false`)
         );
-      } catch (err) {
-        console.debug("Beacon failed:", err);
-      }
-    };
+      };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+      window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Periodic heartbeat to maintain online status (every 30 seconds)
-    const heartbeat = setInterval(() => {
-      updateOnlineStatus(true);
-    }, 30000);
+      // Periodic heartbeat to maintain online status
+      const heartbeat = setInterval(() => {
+        fetch(getApiUrl(`/user/${userId}/online-status?isOnline=true`), {
+          method: "PATCH",
+          headers: {
+            sessionId: sessionId,
+            userId: userId,
+          },
+        }).catch((err) => console.error("Heartbeat failed:", err));
+      }, 30000); // Every 30 seconds
 
-    return () => {
-      clearInterval(heartbeat);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      // Set offline on component unmount
-      updateOnlineStatus(false);
-    };
+      return () => {
+        clearInterval(heartbeat);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        // Set offline on component unmount
+        fetch(getApiUrl(`/user/${userId}/online-status?isOnline=false`), {
+          method: "PATCH",
+          headers: {
+            sessionId: sessionId,
+            userId: userId,
+          },
+        }).catch((err) => console.error("Failed to set offline:", err));
+      };
+    }
   }, []);
 
   return (

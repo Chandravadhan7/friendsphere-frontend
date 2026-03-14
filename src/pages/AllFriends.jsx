@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import FriendCard from "../components/friendCard/friendCard";
 import UserProfile from "./userprofile";
+import { getApiUrl } from "../config/api";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
@@ -15,16 +16,13 @@ export default function AllFriends() {
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
 
   const getAllFriends = async () => {
-    const response = await fetch(
-      `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
-      {
-        method: "GET",
-        headers: {
-          sessionId: sessionId,
-          userId: userId,
-        },
-      }
-    );
+    const response = await fetch(getApiUrl(`/friendship/friends/${userId}`), {
+      method: "GET",
+      headers: {
+        sessionId: sessionId,
+        userId: userId,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch friends");

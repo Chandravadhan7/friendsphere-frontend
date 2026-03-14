@@ -1,61 +1,61 @@
-.chat-cont{
-    height:4.8rem;
-    width:100%;
-    /* border: 1px solid black; */
-    display: flex;
-    gap:2%;
+.chat-cont {
+  height: 4.8rem;
+  width: 100%;
+  /* border: 1px solid black; */
+  display: flex;
+  gap: 2%;
 }
-.chat-cont-pic{
-    width:18%;
-    /* border: 1px solid pink; */
+.chat-cont-pic {
+  width: 18%;
+  /* border: 1px solid pink; */
 }
-.chat-cont-name{
-    width:60%;
-    /* border: 1px solid pink; */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap:8%;
-    padding-bottom: 3%;
-    color: #fff;
+.chat-cont-name {
+  width: 60%;
+  /* border: 1px solid pink; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18%;
+  padding-bottom: 3%;
+  color: #fff;
 }
-.name-u{
-    height: 40%;
-    /* border: 1px solid orangered; */
-    font-size: 120%;
-    text-align: left;
-    text-transform: capitalize;
+.name-u {
+  height: 40%;
+  /* border: 1px solid orangered; */
+  font-size: 120%;
+  text-align: left;
+  text-transform: capitalize;
 }
-.last-msg{
-    height:25%;
-    /* border: 1px solid orangered; */
-    font-size: 90%;
-    text-align: left;
-    display: flex;
-    gap:2%;
-    align-items: end;
+.last-msg {
+  height: 25%;
+  /* border: 1px solid orangered; */
+  font-size: 90%;
+  text-align: left;
+  display: flex;
+  gap: 2%;
+  align-items: end;
 }
-.chat-cont-time{
-    width:18%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.chat-cont-time {
+  width: 18%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.chat-cont-time-child{
-    padding: 0;
-    margin: 0;
-    padding: 0.3% 10%;
-    border-radius: 50%;
-    color: #3B82F6;
-    background-color: white; 
-    font-size: 100%;
-    font-weight: 600;
+.chat-cont-time-child {
+  padding: 0;
+  margin: 0;
+  padding: 0.3% 10%;
+  border-radius: 50%;
+  color: #3b82f6;
+  background-color: white;
+  font-size: 100%;
+  font-weight: 600;
 }
 .selected-chat {
-    background-color: #2e3b4e;
-    transition: background-color 0.3s ease;
+  background-color: #2e3b4e;
+  transition: background-color 0.3s ease;
 }
 
 .chat-cont:hover {
-    background-color: #374151;
+  background-color: #374151;
 }

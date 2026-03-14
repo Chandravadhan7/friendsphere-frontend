@@ -16,7 +16,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
-  background: linear-gradient(180deg, #0e1525 0%, #1a2332 100%);
+  background: linear-gradient(180deg, #0e1525 0%, #031429 100%);
   gap: 0;
   height: 91vh;
 }
@@ -126,7 +126,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-left: 1  5px;
+  margin-left: 1 5px;
 }
 
 .common-groups-list {

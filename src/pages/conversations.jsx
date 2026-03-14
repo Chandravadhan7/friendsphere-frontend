@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import "./conversation.css";
 import Conversation from "../components/conversation/conversation";
 import ChatBox from "./chatbox";
+import { getApiUrl } from "../config/api";
 import { RiChatNewLine } from "react-icons/ri";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { HiOutlineUserGroup } from "react-icons/hi2";
@@ -50,7 +51,6 @@ export default function Conversations() {
   }, []);
 
   const selectConversation = (conversationId) => {
-    console.log("Selecting conversation:", conversationId);
     setSelectedConversationId(conversationId);
     setSelectedFriendId(null);
     setSearchParams({ conversationId });
@@ -89,18 +89,15 @@ export default function Conversations() {
       title: groupSubject,
     };
 
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId,
-          userId,
-        },
-        body: JSON.stringify(conversation),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversations"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId,
+        userId,
+      },
+      body: JSON.stringify(conversation),
+    });
 
     if (!response.ok) {
       console.error("Failed to create group conversation");
@@ -131,16 +128,13 @@ export default function Conversations() {
 
   const checkOrCreateConversation = async (friendId) => {
     try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations`,
-        {
-          method: "GET",
-          headers: {
-            sessionId,
-            userId,
-          },
-        }
-      );
+      const response = await fetch(getApiUrl("/conversations"), {
+        method: "GET",
+        headers: {
+          sessionId,
+          userId,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
@@ -152,7 +146,7 @@ export default function Conversations() {
 
       for (const convo of allConversations) {
         const res = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+          getApiUrl(`/conversation-participants/${convo.conversationId}`),
           {
             headers: {
               sessionId,
@@ -195,18 +189,15 @@ export default function Conversations() {
       creatorId: userId,
     };
 
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId,
-          userId,
-        },
-        body: JSON.stringify(conversation),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversations"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId,
+        userId,
+      },
+      body: JSON.stringify(conversation),
+    });
 
     if (!response.ok) {
       throw new Error("Unable to create conversation");
@@ -229,18 +220,15 @@ export default function Conversations() {
       isAdmin: uid === userId,
     };
 
-    const response = await fetch(
-      "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          sessionId: sessionId,
-          userId: userId,
-        },
-        body: JSON.stringify(participant),
-      }
-    );
+    const response = await fetch(getApiUrl("/conversation-participants"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        sessionId: sessionId,
+        userId: userId,
+      },
+      body: JSON.stringify(participant),
+    });
 
     if (!response.ok) {
       throw new Error("Unable to add participant");
@@ -252,13 +240,10 @@ export default function Conversations() {
 
   const getBio = async () => {
     try {
-      const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/bio/${userId}`,
-        {
-          method: "GET",
-          headers: { userId, sessionId },
-        }
-      );
+      const response = await fetch(getApiUrl(`/bio/${userId}`), {
+        method: "GET",
+        headers: { userId, sessionId },
+      });
 
       if (!response.ok) throw new Error("Failed to fetch bio");
 
@@ -276,7 +261,7 @@ export default function Conversations() {
   const getMutualsFriends = async () => {
     try {
       const response = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/mutual-friends/${userId}`,
+        getApiUrl(`/friendship/mutual-friends/${userId}`),
         {
           method: "GET",
           headers: { sessionId, userId },
@@ -298,12 +283,9 @@ export default function Conversations() {
 
   const getConversations = async () => {
     try {
-      const resp = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversations",
-        {
-          headers: { sessionId, userId },
-        }
-      );
+      const resp = await fetch(getApiUrl("/conversations"), {
+        headers: { sessionId, userId },
+      });
       if (!resp.ok) throw new Error("failed to fetch conversations");
       const data = await resp.json();
       setConversations(data);
@@ -325,7 +307,7 @@ export default function Conversations() {
       try {
         // Fetch messages
         const msgRes = await fetch(
-          `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/messages/${convo.conversationId}`,
+          getApiUrl(`/messages/${convo.conversationId}`),
           { headers: { sessionId, userId } }
         );
         if (!msgRes.ok) {
@@ -341,7 +323,7 @@ export default function Conversations() {
         if (msgs.length > 0 || convo.conversationId === initialConvoId) {
           // Fetch participants to get names
           const partRes = await fetch(
-            `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/conversation-participants/${convo.conversationId}`,
+            getApiUrl(`/conversation-participants/${convo.conversationId}`),
             { headers: { sessionId, userId } }
           );
 
@@ -358,7 +340,7 @@ export default function Conversations() {
               if (participant.userId) {
                 try {
                   const userRes = await fetch(
-                    `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/${participant.userId}`,
+                    getApiUrl(`/user/${participant.userId}`),
                     { headers: { sessionId, userId } }
                   );
                   if (userRes.ok) {
@@ -420,10 +402,9 @@ export default function Conversations() {
 
   const getAllFriends = async () => {
     try {
-      const resp = await fetch(
-        `http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/friendship/friends/${userId}`,
-        { headers: { sessionId, userId } }
-      );
+      const resp = await fetch(getApiUrl(`/friendship/friends/${userId}`), {
+        headers: { sessionId, userId },
+      });
       if (!resp.ok) throw new Error("failed to fetch friends");
       setFriends(await resp.json());
     } catch (err) {
@@ -694,37 +675,22 @@ export default function Conversations() {
       )}
 
       {/* ChatBox */}
-      {selectedConversationId ? (
-        !isMobile || isMobileChatOpen ? (
-          <>
-            {/* Add back button for mobile */}
-            {isMobile && isMobileChatOpen && (
-              <button
-                className="mobile-back-btn"
-                onClick={() => setIsMobileChatOpen(false)}
-              >
-                ← Back
-              </button>
-            )}
-            <ChatBox
-              key={selectedConversationId}
-              conversationId={selectedConversationId}
-              onBack={() => setIsMobileChatOpen(false)}
-            />
-          </>
-        ) : null
-      ) : (
-        <div
-          className="convo-page-side2"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#888",
-          }}
-        >
-          <p>Select a conversation to start chatting</p>
-        </div>
+      {selectedConversationId && (!isMobile || isMobileChatOpen) && (
+        <>
+          {/* Add back button for mobile */}
+          {isMobile && isMobileChatOpen && (
+            <button
+              className="mobile-back-btn"
+              onClick={() => setIsMobileChatOpen(false)}
+            >
+              ← Back
+            </button>
+          )}
+          <ChatBox
+            conversationId={selectedConversationId}
+            onBack={() => setIsMobileChatOpen(false)}
+          />
+        </>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./loginpage.css"; // Assuming you have a CSS file for styles
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+import { getApiUrl } from "../config/api";
 import {
   Eye,
   EyeOff,
@@ -28,17 +29,14 @@ export default function LoginPage() {
     let inputobj = { email: email, password: password };
 
     try {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/login",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(inputobj),
-        }
-      );
+      const response = await fetch(getApiUrl("/user/api/login"), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputobj),
+      });
 
       if (!response.ok) {
         throw new Error("Login failed. Check your credentials.");
@@ -63,17 +61,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/user/api/google-login",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken: credentialResponse.credential }),
-        }
-      );
+      const response = await fetch(getApiUrl("/user/api/google-login"), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken: credentialResponse.credential }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
