@@ -24,7 +24,7 @@ export default function Comment({ comment }) {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
     if (!response.ok) {
       throw new Error("failed to fetch replies");
@@ -42,7 +42,7 @@ export default function Comment({ comment }) {
     let inputObj = { content: reply };
     const response = await fetch(
       getApiUrl(
-        `/comments/postComment?postId=${comment?.postId}&parentId=${comment?.commentId}`
+        `/comments/postComment?postId=${comment?.postId}&parentId=${comment?.commentId}`,
       ),
       {
         method: "POST",
@@ -52,7 +52,7 @@ export default function Comment({ comment }) {
           sessionId: sessionId,
         },
         body: JSON.stringify(inputObj),
-      }
+      },
     );
     if (!response.ok) {
       throw new Error("failed to add reply");
@@ -89,11 +89,24 @@ export default function Comment({ comment }) {
       <div className="comment-cont">
         <div className="comment-cont-s1">
           <div className="comment-cont-s1-img-cont">
-            <img
-              src={"https://i.ibb.co/67HWYXmq/icons8-user-96.png"}
-              className="post-pro-pic"
-              alt="profile"
-            />
+            <div
+              className="header-avatar-initial"
+              style={{
+                backgroundColor: [
+                  "#00d4ff",
+                  "#fbbf24",
+                  "#10b981",
+                  "#ec4899",
+                  "#a855f7",
+                ][userDetails?.name ? userDetails?.name.length % 5 : 0],
+                marginLeft: 0,
+                width: "36px",
+                height: "36px",
+                fontSize: "15px",
+              }}
+            >
+              {userDetails?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
           </div>
         </div>
         <div className="comment-cont-s2">

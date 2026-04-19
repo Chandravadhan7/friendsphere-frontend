@@ -4,10 +4,7 @@ import "./emptyState.css";
 import Post from "../components/post/post";
 import Suggestion from "../components/suggestion/suggestion";
 import { getApiUrl } from "../config/api";
-import CollectionsOutlinedIcon from "@mui/icons-material/CollectionsOutlined";
-import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
-import SentimentSatisfiedOutlinedIcon from "@mui/icons-material/SentimentSatisfiedOutlined";
-import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
+import { Image, Video, Smile, MapPin } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { fetchLikes } from "./fetchLikes";
 import { useDispatch } from "react-redux";
@@ -196,11 +193,18 @@ export default function Home() {
         <div className="side11">
           <div className="thought">
             <div className="thought-pro">
-              <img
-                src={"https://i.ibb.co/67HWYXmq/icons8-user-96.png"}
-                className="post-pro-pic"
-                alt="profile"
-              />
+              <div
+                className="header-avatar-initial"
+                style={{
+                  backgroundColor: "#fbbf24",
+                  marginLeft: 0,
+                  width: "38px",
+                  height: "38px",
+                  fontSize: "16px",
+                }}
+              >
+                M
+              </div>
             </div>
             <input
               placeholder="Share your thoughts with the world..."
@@ -246,10 +250,10 @@ export default function Home() {
             <label
               htmlFor="file-input"
               className="contents1"
-              style={{ color: "#3B82F6" }}
+              style={{ color: "#00d4ff" }}
             >
-              <div>
-                <CollectionsOutlinedIcon />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Image size={20} />
               </div>
               <div className="pvfl">Photo</div>
             </label>
@@ -265,10 +269,10 @@ export default function Home() {
             <label
               htmlFor="video-input"
               className="contents1"
-              style={{ color: "lightgreen" }}
+              style={{ color: "#10b981" }}
             >
-              <div>
-                <VideocamOutlinedIcon />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Video size={20} />
               </div>
               <div className="pvfl">Video</div>
             </label>
@@ -284,9 +288,11 @@ export default function Home() {
             <div
               className="contents1"
               onClick={handleFeelingClick}
-              style={{ color: "orange" }}
+              style={{ color: "#fbbf24" }}
             >
-              😊
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Smile size={20} />
+              </div>
               <div className="pvfl">Feeling</div>
             </div>
 
@@ -294,9 +300,11 @@ export default function Home() {
             <div
               className="contents1"
               onClick={handleLocationClick}
-              style={{ color: "purple" }}
+              style={{ color: "#ec4899" }}
             >
-              <PlaceOutlinedIcon />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <MapPin size={20} />
+              </div>
               <div className="pvfl">Location</div>
             </div>
 
@@ -336,7 +344,29 @@ export default function Home() {
             : {}
         }
       >
-        <div className="side21">Suggested for you ✨</div>
+        <div className="side21">
+          <h3 style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600 }}>
+            Suggested for you
+          </h3>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ color: "#fbbf24" }}
+          >
+            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.511l1.582-6.135a.5.5 0 0 1 .963 0l1.582 6.135a2 2 0 0 0 1.436 1.426l6.135 1.582a.5.5 0 0 1 0 .962l-6.135 1.582a2 2 0 0 0-1.436 1.426l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
+            <path d="M20 3v4"></path>
+            <path d="M22 5h-4"></path>
+            <path d="M4 17v2"></path>
+            <path d="M5 18H3"></path>
+          </svg>
+        </div>
         <div className="side22">
           {suggestion.length === 0 ? (
             <div className="empty-suggestions">
@@ -351,17 +381,19 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            suggestion.map((item) => {
-              return (
-                <Link
-                  key={item?.userId}
-                  to={`/profile/${item?.userId}`}
-                  style={{ textDecoration: "none" }}
-                >
-                  <Suggestion suggestedItem={item} />
-                </Link>
-              );
-            })
+            suggestion
+              .slice(0, buttonState === "see more" ? 4 : suggestion.length)
+              .map((item) => {
+                return (
+                  <Link
+                    key={item?.userId}
+                    to={`/profile/${item?.userId}`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Suggestion suggestedItem={item} />
+                  </Link>
+                );
+              })
           )}
         </div>
         <div className="side23">

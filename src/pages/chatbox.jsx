@@ -5,9 +5,12 @@ import Message from "../components/message/message";
 import { getApiUrl } from "../config/api";
 import { RxCross1 } from "react-icons/rx";
 import { MdBlock } from "react-icons/md";
+import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdOutlineReportProblem } from "react-icons/md";
 import { MdDeleteOutline } from "react-icons/md";
 import { BsEmojiSmile } from "react-icons/bs";
+import { HiOutlineUserGroup } from "react-icons/hi2";
 import EmojiPicker from "emoji-picker-react";
 import { formatDistanceToNowStrict } from "date-fns";
 
@@ -86,7 +89,7 @@ export default function ChatBox({ conversationId }) {
         await editConversationMessage(
           conversationId,
           editingMessage.messageId,
-          message
+          message,
         );
         setMessage("");
         setEditingMessage(null);
@@ -152,7 +155,7 @@ export default function ChatBox({ conversationId }) {
               sessionId: sessionId,
               userId: userId,
             },
-          }
+          },
         );
 
         if (response.ok) {
@@ -172,7 +175,7 @@ export default function ChatBox({ conversationId }) {
     if (window.confirm("Are you sure you want to leave this group?")) {
       try {
         console.log(
-          `Attempting to leave group: ${conversationId}, userId: ${userId}`
+          `Attempting to leave group: ${conversationId}, userId: ${userId}`,
         );
 
         const response = await fetch(
@@ -183,7 +186,7 @@ export default function ChatBox({ conversationId }) {
               sessionId: sessionId,
               userId: String(userId),
             },
-          }
+          },
         );
 
         console.log("Leave group response status:", response.status);
@@ -250,8 +253,8 @@ export default function ChatBox({ conversationId }) {
                         content: payload.decryptedContent || payload.content,
                         updatedAt: payload.updatedAt,
                       }
-                    : msg
-                )
+                    : msg,
+                ),
               );
             } else if (payload.type === "DELETE") {
               // Mark message as deleted
@@ -259,8 +262,8 @@ export default function ChatBox({ conversationId }) {
                 prev.map((msg) =>
                   msg.messageId === payload.messageId
                     ? { ...msg, isDeleted: true, updatedAt: payload.updatedAt }
-                    : msg
-                )
+                    : msg,
+                ),
               );
             } else {
               // New message (CHAT type)
@@ -274,7 +277,7 @@ export default function ChatBox({ conversationId }) {
               };
               setMessages((prev) => [...prev, incoming]);
             }
-          }
+          },
         );
         connected = true;
       } catch (e) {
@@ -310,7 +313,7 @@ export default function ChatBox({ conversationId }) {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -333,7 +336,7 @@ export default function ChatBox({ conversationId }) {
         getApiUrl(`/conversation-participants/${conversationId}`),
         {
           headers: { sessionId, userId: String(userId) },
-        }
+        },
       );
 
       if (!response.ok) return;
@@ -345,7 +348,7 @@ export default function ChatBox({ conversationId }) {
         try {
           const userRes = await fetch(
             getApiUrl(`/user/${participant.userId}`),
-            { headers: { sessionId, userId: String(userId) } }
+            { headers: { sessionId, userId: String(userId) } },
           );
           if (userRes.ok) {
             const user = await userRes.json();
@@ -402,7 +405,7 @@ export default function ChatBox({ conversationId }) {
         getApiUrl(`/conversations?userId=${userId}`),
         {
           headers: { sessionId, userId: String(userId) },
-        }
+        },
       );
 
       if (!myConvosRes.ok) return;
@@ -420,7 +423,7 @@ export default function ChatBox({ conversationId }) {
       for (const group of groups) {
         const participantsRes = await fetch(
           getApiUrl(`/conversation-participants/${group.conversationId}`),
-          { headers: { sessionId, userId: String(userId) } }
+          { headers: { sessionId, userId: String(userId) } },
         );
 
         if (participantsRes.ok) {
@@ -429,7 +432,7 @@ export default function ChatBox({ conversationId }) {
           console.log(`Looking for otherUserId: ${otherUserId}`);
 
           const hasOtherUser = participants.some(
-            (p) => p.userId === otherUserId
+            (p) => p.userId === otherUserId,
           );
 
           console.log(`Has other user in group ${group.title}:`, hasOtherUser);
@@ -439,14 +442,14 @@ export default function ChatBox({ conversationId }) {
             const memberDetails = [];
             console.log(
               `Fetching members for group ${group.groupName || group.conversationId}:`,
-              participants
+              participants,
             );
 
             for (const participant of participants) {
               try {
                 const userRes = await fetch(
                   getApiUrl(`/user/${participant.userId}`),
-                  { headers: { sessionId, userId: String(userId) } }
+                  { headers: { sessionId, userId: String(userId) } },
                 );
                 if (userRes.ok) {
                   const user = await userRes.json();
@@ -456,14 +459,14 @@ export default function ChatBox({ conversationId }) {
               } catch (err) {
                 console.error(
                   `Error fetching user ${participant.userId}:`,
-                  err
+                  err,
                 );
               }
             }
 
             console.log(
               `Group ${group.title || group.groupName} members:`,
-              memberDetails
+              memberDetails,
             );
             common.push({
               ...group,
@@ -477,7 +480,7 @@ export default function ChatBox({ conversationId }) {
       const uniqueCommon = common.filter(
         (group, index, self) =>
           index ===
-          self.findIndex((g) => g.conversationId === group.conversationId)
+          self.findIndex((g) => g.conversationId === group.conversationId),
       );
 
       console.log("Common groups (before dedupe):", common);
@@ -512,7 +515,7 @@ export default function ChatBox({ conversationId }) {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
     if (!response.ok) {
       throw new Error("failed to fetch");
@@ -528,7 +531,7 @@ export default function ChatBox({ conversationId }) {
   const setLastSeen = async () => {
     const response = await fetch(
       getApiUrl(
-        `/conversation-participants/last-seen/${conversationId}/${otherUserId}`
+        `/conversation-participants/last-seen/${conversationId}/${otherUserId}`,
       ),
       {
         method: "PATCH",
@@ -536,7 +539,7 @@ export default function ChatBox({ conversationId }) {
           sessionId,
           userId,
         },
-      }
+      },
     );
 
     const lastSeenResponse = await response.json();
@@ -572,7 +575,25 @@ export default function ChatBox({ conversationId }) {
                 : getLastSeenText(userDetails?.lastSeen, userDetails?.isOnline)}
             </div>
           </div>
-          <div className="convo-page-side2-user-call"></div>
+          <div
+            className="convo-page-side2-user-call"
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingRight: "15px",
+              gap: "15px",
+              color: "#9ca3af",
+              fontSize: "20px",
+            }}
+          >
+            <IoCallOutline style={{ cursor: "pointer" }} />
+            <IoVideocamOutline style={{ cursor: "pointer" }} />
+            <BsThreeDotsVertical
+              style={{ cursor: "pointer" }}
+              onClick={toogleSide22}
+            />
+          </div>
         </div>
         <div className="convo-page-side2-convo" ref={chatContainerRef}>
           {messages.map((item) => (
@@ -673,177 +694,318 @@ export default function ChatBox({ conversationId }) {
         </div>
       </div>
       {toogle && (
-        <div className="convo-page-side22">
-          {(() => {
-            console.log("Convo data:", convo);
-            console.log("Is group conversation:", convo?.isGroup);
-            console.log("Group members:", groupMembers);
-            return null;
-          })()}
-          {convo?.isGroup ? (
-            // Group Info
-            <>
-              <div className="convo-cont-info">
-                <div className="convo-head">
-                  <button className="cross-btn" onClick={toogleSide22}>
-                    <RxCross1 />
-                  </button>
-                  <div>Group info</div>
-                </div>
-                <div className="convo-img-cont">
-                  <div className="group-icon-large">👥</div>
-                  <div className="user-info-name">
-                    {convo?.title || convo?.groupName || "Unnamed Group"}
+        <>
+          <div
+            className="convo-page-side22-backdrop"
+            onClick={toogleSide22}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 1000,
+              backdropFilter: "blur(2px)",
+            }}
+          ></div>
+          <div className="convo-page-side22 ui-drawer">
+            {(() => {
+              console.log("Convo data:", convo);
+              console.log("Is group conversation:", convo?.isGroup);
+              console.log("Group members:", groupMembers);
+              return null;
+            })()}
+            {convo?.isGroup ? (
+              // Group Info
+              <>
+                <div className="convo-cont-info">
+                  <div className="convo-head">
+                    <button className="cross-btn" onClick={toogleSide22}>
+                      <RxCross1 />
+                    </button>
+                    <div>Group info</div>
                   </div>
-                  <div className="user-info-email">
-                    {groupMembers.length} members
-                  </div>
-                </div>
-              </div>
-
-              <div className="common-groups">
-                <div className="common-groups-head">
-                  {groupMembers.length} MEMBERS
-                </div>
-                <div className="group-members-list">
-                  {groupMembers.map((member) => (
-                    <div key={member.userId} className="group-member-item">
-                      <img
-                        src={
-                          member.profile_img_url ||
-                          "https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-                        }
-                        alt={member.name}
-                        className="member-avatar"
-                      />
-                      <div className="member-info">
-                        <div className="member-name">
-                          {member.userId === userId ? "You" : member.name}
-                        </div>
-                        <div className="member-status">
-                          {member.email || "Available"}
-                        </div>
-                      </div>
-                      {member.userId !== userId && (
-                        <div className="member-role">Group admin</div>
-                      )}
+                  <div className="convo-img-cont">
+                    <div className="group-icon-large">👥</div>
+                    <div className="user-info-name">
+                      {convo?.title || convo?.groupName || "Unnamed Group"}
                     </div>
-                  ))}
+                    <div className="user-info-email">
+                      {groupMembers.length} members
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div className="brd">
-                <div
-                  className="report"
-                  onClick={handleLeaveGroup}
-                  style={{ cursor: "pointer", color: "#e74c3c" }}
-                >
-                  <MdDeleteOutline style={{ fontSize: "135%" }} />
-                  <div style={{ fontSize: "110%" }}>Leave Group</div>
-                </div>
-              </div>
-            </>
-          ) : (
-            // User Info (1-on-1 chat)
-            <>
-              <div className="convo-cont-info">
-                <div className="convo-head">
-                  <button className="cross-btn" onClick={toogleSide22}>
-                    <RxCross1 />
-                  </button>
-                  <div>User info</div>
-                </div>
-                <div className="convo-img-cont">
-                  <img
-                    src={
-                      userDetails?.profile_img_url ||
-                      "https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-                    }
-                    className="convo-page-side2-user-pic-img"
-                    alt="User profile"
-                  />
-                  <div className="user-info-name">{userDetails?.name}</div>
-                  <div className="user-info-email">{userDetails?.email}</div>
-                </div>
-              </div>
-
-              <div className="common-groups">
-                <div className="common-groups-head">
-                  {commonGroups.length}{" "}
-                  {commonGroups.length === 1 ? "GROUP" : "GROUPS"} IN COMMON
-                </div>
-                <div className="group-members-list">
-                  {commonGroups.length > 0 ? (
-                    commonGroups.map((group) => {
-                      console.log("Rendering group:", group);
-                      console.log("Group members:", group.members);
-                      return (
-                        <div
-                          key={group.conversationId}
-                          className="group-member-item"
-                          onClick={() =>
-                            (window.location.href = `/chats?conversationId=${group.conversationId}`)
+                <div className="common-groups">
+                  <div className="common-groups-head">
+                    {groupMembers.length} MEMBERS
+                  </div>
+                  <div className="group-members-list">
+                    {groupMembers.map((member) => (
+                      <div key={member.userId} className="group-member-item">
+                        <img
+                          src={
+                            member.profile_img_url ||
+                            "https://i.ibb.co/67HWYXmq/icons8-user-96.png"
                           }
-                          style={{ cursor: "pointer" }}
-                        >
+                          alt={member.name}
+                          className="member-avatar"
+                        />
+                        <div className="member-info">
+                          <div className="member-name">
+                            {member.userId === userId ? "You" : member.name}
+                          </div>
+                          <div className="member-status">
+                            {member.email || "Available"}
+                          </div>
+                        </div>
+                        {member.userId !== userId && (
+                          <div className="member-role">Group admin</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="brd">
+                  <div
+                    className="report"
+                    onClick={handleLeaveGroup}
+                    style={{ cursor: "pointer", color: "#e74c3c" }}
+                  >
+                    <MdDeleteOutline style={{ fontSize: "135%" }} />
+                    <div style={{ fontSize: "110%" }}>Leave Group</div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // User Info (1-on-1 chat)
+              <>
+                <div className="convo-cont-info">
+                  <div
+                    className="convo-head"
+                    style={{ justifyContent: "space-between", width: "100%" }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                      }}
+                    >
+                      <button
+                        className="cross-btn"
+                        onClick={toogleSide22}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#a8b3cf",
+                          fontSize: "20px",
+                          padding: "0",
+                        }}
+                      >
+                        <RxCross1 />
+                      </button>
+                      <div
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: "600",
+                          color: "#fff",
+                        }}
+                      >
+                        User info
+                      </div>
+                    </div>
+                    <button
+                      className="cross-btn"
+                      onClick={toogleSide22}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#a8b3cf",
+                        fontSize: "20px",
+                        padding: "0",
+                      }}
+                    >
+                      <RxCross1 />
+                    </button>
+                  </div>
+                  <div className="convo-img-cont">
+                    <div
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        borderRadius: "50%",
+                        backgroundColor: "#f43f5e",
+                        color: "#0b0f19",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "64px",
+                        fontWeight: "700",
+                        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      {userDetails?.name
+                        ? userDetails.name.charAt(0).toUpperCase()
+                        : "?"}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        marginTop: "10px",
+                      }}
+                    >
+                      <div
+                        className="user-info-name"
+                        style={{ fontSize: "24px", fontWeight: "700" }}
+                      >
+                        {userDetails?.name || "Unknown"}
+                      </div>
+                      <div
+                        className="user-info-email"
+                        style={{
+                          color: "#9ca3af",
+                          fontSize: "15px",
+                          marginTop: "4px",
+                        }}
+                      >
+                        {getLastSeenText(
+                          userDetails?.lastSeen,
+                          userDetails?.isOnline,
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="common-groups">
+                  <div
+                    className="common-groups-head"
+                    style={{
+                      fontSize: "12px",
+                      letterSpacing: "1px",
+                      color: "#8b949e",
+                      fontWeight: "600",
+                      marginBottom: "8px",
+                      paddingLeft: "20px",
+                    }}
+                  >
+                    {commonGroups.length}{" "}
+                    {commonGroups.length === 1 ? "GROUP" : "GROUPS"} IN COMMON
+                  </div>
+                  <div className="group-members-list">
+                    {commonGroups.length > 0 ? (
+                      commonGroups.map((group) => {
+                        return (
                           <div
-                            className="member-avatar"
+                            key={group.conversationId}
+                            className="group-member-item"
+                            onClick={() =>
+                              (window.location.href = `/chats?conversationId=${group.conversationId}`)
+                            }
                             style={{
-                              background:
-                                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "24px",
+                              cursor: "pointer",
+                              borderBottom: "none",
+                              padding: "12px 20px",
                             }}
                           >
-                            👥
-                          </div>
-                          <div className="member-info">
-                            <div className="member-name">
-                              {group.title ||
-                                group.groupName ||
-                                "Unnamed Group"}
+                            <div
+                              className="member-avatar"
+                              style={{
+                                background: "#8b5cf6",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "24px",
+                              }}
+                            >
+                              <HiOutlineUserGroup style={{ color: "white" }} />
                             </div>
-                            <div className="member-status">
-                              {group.members && group.members.length > 0
-                                ? group.members.map((m) => m.name).join(", ")
-                                : "No members"}
+                            <div className="member-info">
+                              <div
+                                className="member-name"
+                                style={{ fontWeight: "600", fontSize: "15px" }}
+                              >
+                                {group.title ||
+                                  group.groupName ||
+                                  "Unnamed Group"}
+                              </div>
+                              <div
+                                className="member-status"
+                                style={{
+                                  color: "#8b949e",
+                                  fontSize: "13px",
+                                  marginTop: "2px",
+                                }}
+                              >
+                                {group.members && group.members.length > 0
+                                  ? group.members.map((m) => m.name).join(", ")
+                                  : "No members"}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="no-common-groups">
-                      <span>📭</span>
-                      <p>No groups in common</p>
-                    </div>
-                  )}
+                        );
+                      })
+                    ) : (
+                      <div className="no-common-groups">
+                        <span>📭</span>
+                        <p>No groups in common</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
 
-          <div className="brd">
-            <div className="report" style={{ cursor: "pointer" }}>
-              <MdBlock style={{ fontSize: "135%" }} />
-              <div style={{ fontSize: "110%" }}>Block</div>
-            </div>
-            <div className="report" style={{ cursor: "pointer" }}>
-              <MdOutlineReportProblem style={{ fontSize: "135%" }} />
-              <div style={{ fontSize: "110%" }}>Report</div>
-            </div>
             <div
-              className="report"
-              onClick={handleDeleteConversation}
-              style={{ cursor: "pointer" }}
+              className="brd"
+              style={{
+                marginTop: "auto",
+                borderTop: "1px solid rgba(255,255,255,0.05)",
+                paddingBottom: "20px",
+              }}
             >
-              <MdDeleteOutline style={{ fontSize: "135%" }} />
-              <div style={{ fontSize: "110%" }}>Delete Chat</div>
+              <div
+                className="report"
+                style={{
+                  cursor: "pointer",
+                  color: "#ef4444",
+                  borderTop: "none",
+                }}
+              >
+                <MdBlock style={{ fontSize: "22px" }} />
+                <div style={{ fontSize: "16px" }}>Block</div>
+              </div>
+              <div
+                className="report"
+                style={{
+                  cursor: "pointer",
+                  color: "#eab308",
+                  borderTop: "none",
+                }}
+              >
+                <MdOutlineReportProblem style={{ fontSize: "22px" }} />
+                <div style={{ fontSize: "16px" }}>Report</div>
+              </div>
+              <div
+                className="report"
+                onClick={handleDeleteConversation}
+                style={{
+                  cursor: "pointer",
+                  color: "#ef4444",
+                  borderTop: "none",
+                }}
+              >
+                <MdDeleteOutline style={{ fontSize: "22px" }} />
+                <div style={{ fontSize: "16px" }}>Delete Chat</div>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

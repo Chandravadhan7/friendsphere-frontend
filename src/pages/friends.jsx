@@ -10,10 +10,12 @@ import { AiFillHome } from "react-icons/ai";
 import { FaUserFriends } from "react-icons/fa";
 import { MdPeopleAlt } from "react-icons/md";
 import { HiUserGroup } from "react-icons/hi";
+import FriendCard from "../components/friendCard/friendCard";
 
 export default function Friends() {
   const [friendRequests, setFriendRequests] = useState([]);
   const [suggestion, setSuggestion] = useState([]);
+  const [allFriends, setAllFriends] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,7 +35,24 @@ export default function Friends() {
   useEffect(() => {
     getFriendRequest();
     getSuggestions();
+    getAllFriends();
   }, []);
+
+  const getAllFriends = async () => {
+    try {
+      const response = await fetch(getApiUrl(`/friendship/friends/${userId}`), {
+        method: "GET",
+        headers: { sessionId, userId },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch friends");
+
+      const data = await response.json();
+      setAllFriends(data);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    }
+  };
 
   const getFriendRequest = async () => {
     try {
@@ -153,14 +172,6 @@ export default function Friends() {
                 <span>Back</span>
               </div>
             )}
-            {friendRequests.length > 0 && (
-              <div className="friend-cont-side21">Friend Requests</div>
-            )}
-            <div className="friend-cont-side22">
-              {friendRequests.map((item) => (
-                <FriendRequestCard key={item.id} item={item} />
-              ))}
-            </div>
             {suggestion.length > 0 && (
               <div className="friend-cont-side21">Suggestions</div>
             )}
@@ -185,10 +196,57 @@ export default function Friends() {
                 <span>Back</span>
               </div>
             )}
-            <div className="friend-cont-side21">Friend Requests</div>
-            <div className="friend-cont-side22">
+            <div className="friend-cont-side21">
+              <ArrowBackIosOutlinedIcon
+                style={{
+                  cursor: "pointer",
+                  marginRight: "10px",
+                  fontSize: "20px",
+                }}
+                onClick={() => navigate("/friends")}
+              />
+              Friend Requests
+            </div>
+            <div
+              style={{
+                color: "rgba(255,255,255,0.6)",
+                fontSize: "14px",
+                margin: "10px 0 20px 0",
+                paddingLeft: "10px",
+              }}
+            >
+              {friendRequests.length} friend requests
+            </div>
+            <div
+              className="friend-cont-list"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                padding: "0 10px",
+              }}
+            >
               {friendRequests.map((item) => (
                 <FriendRequestCard key={item.id} item={item} />
+              ))}
+            </div>
+
+            <div
+              className="friend-cont-side21"
+              style={{ marginTop: "40px", marginBottom: "20px" }}
+            >
+              Suggestions
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                gap: "20px",
+                padding: "0 10px",
+              }}
+            >
+              {suggestion.map((item) => (
+                <SuggestionCard key={item.id} item={item} />
               ))}
             </div>
           </>
@@ -207,10 +265,105 @@ export default function Friends() {
                 <span>Back</span>
               </div>
             )}
-            <div className="friend-cont-side21">Suggestions</div>
-            <div className="friend-cont-side22">
+            <div className="friend-cont-side21">
+              <ArrowBackIosOutlinedIcon
+                style={{
+                  cursor: "pointer",
+                  marginRight: "10px",
+                  fontSize: "20px",
+                }}
+                onClick={() => navigate("/friends")}
+              />
+              Suggestions
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                padding: "10px",
+                marginTop: "20px",
+              }}
+            >
               {suggestion.map((item) => (
-                <SuggestionCard key={item.id} item={item} />
+                <div
+                  key={item.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "10px",
+                    background: "linear-gradient(135deg, #121a2b, #0f1524)",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "15px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        borderRadius: "50%",
+                        background: [
+                          "#ec4899",
+                          "#00d4ff",
+                          "#10b981",
+                          "#fbbf24",
+                          "#a855f7",
+                        ][item.name ? item.name.length % 5 : 0],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {item.profile_img_url ? (
+                        <img
+                          src={item.profile_img_url}
+                          alt=""
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        item.name?.charAt(0).toUpperCase() || "U"
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        color: "#fff",
+                        fontSize: "15px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  </div>
+                  <button
+                    style={{
+                      background: "#a855f7",
+                      color: "#fff",
+                      border: "none",
+                      padding: "8px 20px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Add Friend
+                  </button>
+                </div>
               ))}
             </div>
           </>
@@ -229,11 +382,28 @@ export default function Friends() {
                 <span>Back</span>
               </div>
             )}
-            <div className="friend-cont-side21">All Friends</div>
-            <div className="friend-cont-side22">
-              <p style={{ color: "#fff" }}>
-                All friends list will be displayed here
-              </p>
+            <div className="friend-cont-side21">
+              <ArrowBackIosOutlinedIcon
+                style={{
+                  cursor: "pointer",
+                  marginRight: "10px",
+                  fontSize: "20px",
+                }}
+                onClick={() => navigate("/friends")}
+              />
+              All Friends
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                gap: "20px",
+                padding: "20px 10px",
+              }}
+            >
+              {allFriends.map((item) => (
+                <FriendCard key={item.userId} friendItem={item} />
+              ))}
             </div>
           </>
         );

@@ -47,8 +47,8 @@
 .empty-state-btn {
   margin-top: 24px;
   padding: 12px 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  color: #f0f4fa;
   border: none;
   border-radius: 25px;
   font-size: 16px;
@@ -57,13 +57,13 @@
   text-decoration: none;
   display: inline-block;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
 }
 
 .empty-state-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
 }
 
 .empty-state-btn:active {

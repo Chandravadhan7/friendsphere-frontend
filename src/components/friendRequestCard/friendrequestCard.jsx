@@ -14,7 +14,7 @@ export default function FriendRequestCard({ item }) {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -32,12 +32,33 @@ export default function FriendRequestCard({ item }) {
   }, []);
   return (
     <div className="request-card">
-      <div className="request-pic-cont">
-        <img
-          src={item?.profile_img_url}
-          className="request-pic"
-          alt={item?.name}
-        />
+      <div
+        className="request-pic-cont"
+        style={
+          !item?.profile_img_url
+            ? {
+                backgroundColor: [
+                  "#ec4899",
+                  "#00d4ff",
+                  "#10b981",
+                  "#fbbf24",
+                  "#a855f7",
+                ][item?.name ? item?.name.length % 5 : 0],
+              }
+            : {}
+        }
+      >
+        {item?.profile_img_url ? (
+          <img
+            src={item?.profile_img_url}
+            className="request-pic"
+            alt={item?.name}
+          />
+        ) : (
+          <span style={{ fontSize: "20px", fontWeight: "bold", color: "#000" }}>
+            {item?.name?.charAt(0).toUpperCase() || "U"}
+          </span>
+        )}
       </div>
       <div className="request-name">
         <div className="request-name-user">{item?.name}</div>
@@ -49,8 +70,8 @@ export default function FriendRequestCard({ item }) {
         )}
       </div>
       <div className="request-btns">
-        <button className="request-confirm-btn">confirm</button>
-        <button className="request-reject-btn">reject</button>
+        <button className="request-confirm-btn">Accept</button>
+        <button className="request-reject-btn">Decline</button>
       </div>
     </div>
   );

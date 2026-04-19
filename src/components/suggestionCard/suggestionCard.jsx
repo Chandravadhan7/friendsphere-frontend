@@ -39,7 +39,7 @@ export default function SuggestionCard({ item }) {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -58,11 +58,36 @@ export default function SuggestionCard({ item }) {
   return (
     <div className="suggestion-card">
       <div className="suggestion-pic-cont">
-        <img
-          src={item?.profile_img_url}
-          className="suggestion-pic"
-          alt={item?.name}
-        />
+        {item?.profile_img_url ? (
+          <img
+            src={item?.profile_img_url}
+            className="suggestion-pic"
+            alt={item?.name}
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: [
+                "#ec4899",
+                "#00d4ff",
+                "#10b981",
+                "#fbbf24",
+                "#a855f7",
+              ][item?.name ? item?.name.length % 5 : 0],
+              fontSize: "40px",
+              fontWeight: "bold",
+              color: "#000",
+            }}
+          >
+            {item?.name?.charAt(0).toUpperCase() || "U"}
+          </div>
+        )}
       </div>
       <div className="suggestion-name">
         <div className="suggestion-name-user">{item?.name}</div>

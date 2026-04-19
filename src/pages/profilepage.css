@@ -495,18 +495,15 @@
   background-color: #0a101f;
   gap: 20px;
   border-radius: 10px;
-  align-items: flex-start; /* Don't center if not needed */
+  align-items: flex-start;
   align-content: flex-start;
   box-sizing: border-box;
 }
 
 .frnd-card {
-  width: 30%;
-  height: 80px;
-  background-color: #031429;
-  border-radius: 5px;
-  cursor: pointer;
   text-decoration: none;
+  display: block;
+  /* removing hardcoded width, height, and background-color so the child component defines its own size */
 }
 .contents {
   padding: 0 1.25rem 1rem 1.25rem;
@@ -780,10 +777,6 @@
     gap: 15px;
     align-items: start;
     width: 95%;
-  }
-  .frnd-card {
-    width: 45%;
-    height: 70px;
   }
 }
 

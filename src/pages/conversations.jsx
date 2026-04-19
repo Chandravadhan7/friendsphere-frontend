@@ -7,8 +7,11 @@ import { getApiUrl } from "../config/api";
 import { RiChatNewLine } from "react-icons/ri";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { HiOutlineUserGroup } from "react-icons/hi2";
+import { AiOutlineUserAdd } from "react-icons/ai";
 import FriendCard from "../components/friendCard/friendCard";
 import { FaCheck } from "react-icons/fa";
+import { LuSend } from "react-icons/lu";
+import { RxCross1 } from "react-icons/rx";
 
 export default function Conversations() {
   const sessionId = localStorage.getItem("sessionId");
@@ -18,7 +21,7 @@ export default function Conversations() {
 
   const [conversations, setConversations] = useState([]);
   const [allProcessedConversations, setAllProcessedConversations] = useState(
-    []
+    [],
   );
   const [filteredConversations, setFilteredConversations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,7 +76,7 @@ export default function Conversations() {
 
   const toggleGroupMember = (id) => {
     setSelectedGroupMembers((prev) =>
-      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id],
     );
   };
 
@@ -152,7 +155,7 @@ export default function Conversations() {
               sessionId,
               userId,
             },
-          }
+          },
         );
 
         if (!res.ok) continue;
@@ -160,7 +163,7 @@ export default function Conversations() {
         const participants = await res.json();
 
         const isOther = participants.some(
-          (p) => p.userId === parseInt(friendId)
+          (p) => p.userId === parseInt(friendId),
         );
         const isSelf = participants.some((p) => p.userId === parseInt(userId));
 
@@ -265,7 +268,7 @@ export default function Conversations() {
         {
           method: "GET",
           headers: { sessionId, userId },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Failed to fetch mutual friends");
@@ -300,7 +303,7 @@ export default function Conversations() {
     console.log(
       "Starting filterConversationsWithMessages with",
       allConvos.length,
-      "conversations"
+      "conversations",
     );
     const results = [];
     for (const convo of allConvos) {
@@ -308,7 +311,7 @@ export default function Conversations() {
         // Fetch messages
         const msgRes = await fetch(
           getApiUrl(`/messages/${convo.conversationId}`),
-          { headers: { sessionId, userId } }
+          { headers: { sessionId, userId } },
         );
         if (!msgRes.ok) {
           console.log(`Failed to fetch messages for ${convo.conversationId}`);
@@ -317,14 +320,14 @@ export default function Conversations() {
         const msgs = await msgRes.json();
         console.log(
           `Conversation ${convo.conversationId} has ${msgs.length} messages:`,
-          msgs
+          msgs,
         );
 
         if (msgs.length > 0 || convo.conversationId === initialConvoId) {
           // Fetch participants to get names
           const partRes = await fetch(
             getApiUrl(`/conversation-participants/${convo.conversationId}`),
-            { headers: { sessionId, userId } }
+            { headers: { sessionId, userId } },
           );
 
           let participantNames = [];
@@ -332,7 +335,7 @@ export default function Conversations() {
             const participants = await partRes.json();
             console.log(
               `Raw participants for ${convo.conversationId}:`,
-              participants
+              participants,
             );
 
             // Fetch user details for each participant to get their names
@@ -341,7 +344,7 @@ export default function Conversations() {
                 try {
                   const userRes = await fetch(
                     getApiUrl(`/user/${participant.userId}`),
-                    { headers: { sessionId, userId } }
+                    { headers: { sessionId, userId } },
                   );
                   if (userRes.ok) {
                     const user = await userRes.json();
@@ -352,7 +355,7 @@ export default function Conversations() {
                 } catch (error) {
                   console.error(
                     `Error fetching user ${participant.userId}:`,
-                    error
+                    error,
                   );
                 }
               }
@@ -360,7 +363,7 @@ export default function Conversations() {
 
             console.log(
               `Conversation ${convo.conversationId} participant names:`,
-              participantNames
+              participantNames,
             );
           }
 
@@ -373,7 +376,7 @@ export default function Conversations() {
             latestMessage?.createdAt;
           console.log(
             `Conversation ${convo.conversationId} latest message time:`,
-            messageTime
+            messageTime,
           );
 
           results.push({
@@ -385,7 +388,7 @@ export default function Conversations() {
       } catch (error) {
         console.error(
           `Error processing conversation ${convo.conversationId}:`,
-          error
+          error,
         );
       }
     }
@@ -432,13 +435,13 @@ export default function Conversations() {
             "Checking conversation:",
             convo.conversationId,
             "Participant names:",
-            convo.participantNames
+            convo.participantNames,
           );
 
           // Search in participant names
           if (convo.participantNames && convo.participantNames.length > 0) {
             const nameMatch = convo.participantNames.some((name) =>
-              name.toLowerCase().includes(searchQuery.toLowerCase())
+              name.toLowerCase().includes(searchQuery.toLowerCase()),
             );
             if (nameMatch) {
               console.log("Match found in participant names");
@@ -473,209 +476,63 @@ export default function Conversations() {
     }
   }, [initialConvoId]);
 
-  // In your return statement, update the main container:
   return (
     <div
       className={`convo-page ${isMobile && isMobileChatOpen ? "mobile-chat-open" : ""}`}
     >
-      {toggle ? (
-        togglenewgroup ? (
-          showGroupDetails ? (
-            <div className="convo-page-side1">
-              <div className="convo-page-side1-title">
-                <div className="cpicon">
-                  <FaArrowLeftLong onClick={() => setShowGroupDetails(false)} />
-                </div>
-                <div
-                  className="cpchat"
-                  style={{ fontSize: "150%", lineHeight: "260%" }}
-                >
-                  New Group
-                </div>
-              </div>
-              <div className="group-icon-section">
-                <label className="group-icon-label">
-                  <input type="file" onChange={handleIconUpload} hidden />
-                  <div className="icon-placeholder">ADD GROUP ICON</div>
-                </label>
-              </div>
-              <div className="group-subject">
-                <input
-                  type="text"
-                  placeholder="Group subject (optional)"
-                  value={groupSubject}
-                  onChange={(e) => setGroupSubject(e.target.value)}
-                />
-              </div>
-              <div className="confirm-btn">
-                <FaCheck
-                  style={{
-                    fontSize: "2rem",
-                    color: "green",
-                    cursor: "pointer",
-                  }}
-                  onClick={createGroup}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="convo-page-side1">
-              <div className="convo-page-side1-title">
-                <div className="cpicon">
-                  <FaArrowLeftLong onClick={toggleChats} />
-                </div>
-                <div
-                  className="cpchat"
-                  style={{ fontSize: "150%", lineHeight: "260%" }}
-                >
-                  New Group
-                </div>
-              </div>
-              <div className="convo-page-side1-search">
-                <input placeholder="search friends" />
-              </div>
-              <div className="convo-page-side1-chats">
-                {friends.map((item) => {
-                  const isSelected = selectedGroupMembers.includes(item.userId);
-                  return (
-                    <div
-                      key={item.userId}
-                      className={`friend-select-wrapper ${isSelected ? "selected" : ""}`}
-                      onClick={() => toggleGroupMember(item.userId)}
-                    >
-                      <FriendCard friendItem={item} isSelected={isSelected} />
-                    </div>
-                  );
-                })}
-              </div>
-              {selectedGroupMembers.length > 0 && (
-                <div style={{ padding: "10px", textAlign: "center" }}>
-                  <button
-                    onClick={() => setShowGroupDetails(true)}
-                    style={{
-                      padding: "10px 20px",
-                      backgroundColor: "#007bff",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Continue
-                  </button>
-                </div>
-              )}
-            </div>
-          )
-        ) : (
-          <div className="convo-page-side1">
-            <div className="convo-page-side1-title">
-              <div className="cpicon">
-                <FaArrowLeftLong onClick={toggleChats} />
-              </div>
-              <div
-                className="cpchat"
-                style={{ fontSize: "150%", lineHeight: "260%" }}
-              >
-                New Chat
-              </div>
-            </div>
-            <div className="convo-page-side1-search">
-              <input placeholder="search friends" />
-            </div>
-            <div className="convo-page-side1-title">
-              <div className="cpicon">
-                <HiOutlineUserGroup />
-              </div>
-              <div
-                className="cpchat"
-                style={{
-                  fontSize: "120%",
-                  lineHeight: "320%",
-                  cursor: "pointer",
-                }}
-                onClick={toggleGroup}
-              >
-                New Group
-              </div>
-            </div>
-            <div className="convo-page-side1-chats">
-              {friends.map((item) => (
-                <FriendCard
-                  key={item.userId}
-                  friendItem={item}
-                  onClick={async () => {
-                    setSelectedFriendId(item.userId);
-                    if (!isMobile) {
-                      await checkOrCreateConversation(item.userId);
-                    } else {
-                      setTimeout(async () => {
-                        await checkOrCreateConversation(item.userId);
-                        setIsMobileChatOpen(true); // explicitly open chat after small delay
-                      }, 100); // 100ms lets CSS apply
-                    }
-                  }}
-                  isSelected={selectedFriendId === item.userId}
-                />
-              ))}
+      {(!isMobile || !isMobileChatOpen) && (
+        <div className="convo-page-side1">
+          <div className="convo-page-side1-title">
+            <div className="cpchat">Chats</div>
+            <div className="cpicon">
+              <AiOutlineUserAdd
+                style={{ fontSize: "120%", marginTop: "5px" }}
+                onClick={toggleChats}
+              />
             </div>
           </div>
-        )
-      ) : (
-        <>
-          {(!isMobile || !isMobileChatOpen) && (
-            <div className="convo-page-side1">
-              <div className="convo-page-side1-title">
-                <div className="cpchat">Chats</div>
-                <div className="cpicon">
-                  <RiChatNewLine onClick={toggleChats} />
-                </div>
+          <div className="convo-page-side1-search">
+            <input
+              placeholder="search conversation"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="convo-page-side1-chats">
+            {filteredConversations.length === 0 && searchQuery.trim() !== "" ? (
+              <div
+                style={{
+                  color: "rgba(255, 255, 255, 0.6)",
+                  textAlign: "center",
+                  marginTop: "40px",
+                  fontSize: "15px",
+                  padding: "0 20px",
+                }}
+              >
+                No conversations found matching "{searchQuery}"
               </div>
-              <div className="convo-page-side1-search">
-                <input
-                  placeholder="search conversation"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+            ) : (
+              filteredConversations.map((item) => (
+                <Conversation
+                  key={item.conversationId}
+                  conversationId={item.conversationId}
+                  onClick={() => {
+                    selectConversation(item.conversationId);
+                    if (isMobile) setIsMobileChatOpen(true);
+                  }}
+                  isSelected={
+                    String(selectedConversationId) ===
+                    String(item.conversationId)
+                  }
                 />
-              </div>
-              <div className="convo-page-side1-chats">
-                {filteredConversations.length === 0 &&
-                searchQuery.trim() !== "" ? (
-                  <div
-                    style={{
-                      color: "rgba(255, 255, 255, 0.6)",
-                      textAlign: "center",
-                      marginTop: "40px",
-                      fontSize: "15px",
-                      padding: "0 20px",
-                    }}
-                  >
-                    No conversations found matching "{searchQuery}"
-                  </div>
-                ) : (
-                  filteredConversations.map((item) => (
-                    <Conversation
-                      key={item.conversationId}
-                      conversationId={item.conversationId}
-                      onClick={() => {
-                        selectConversation(item.conversationId);
-                        if (isMobile) setIsMobileChatOpen(true);
-                      }}
-                      isSelected={
-                        String(selectedConversationId) ===
-                        String(item.conversationId)
-                      }
-                    />
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-        </>
+              ))
+            )}
+          </div>
+        </div>
       )}
 
       {/* ChatBox */}
-      {selectedConversationId && (!isMobile || isMobileChatOpen) && (
+      {selectedConversationId && (!isMobile || isMobileChatOpen) ? (
         <>
           {/* Add back button for mobile */}
           {isMobile && isMobileChatOpen && (
@@ -691,6 +548,233 @@ export default function Conversations() {
             onBack={() => setIsMobileChatOpen(false)}
           />
         </>
+      ) : !selectedConversationId && (!isMobile || !isMobileChatOpen) ? (
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            backgroundColor: "hsl(222, 47%, 8%)",
+          }}
+        >
+          <div
+            style={{
+              width: "64px",
+              height: "64px",
+              backgroundColor: "hsl(222, 30%, 18%)",
+              borderRadius: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "24px",
+            }}
+          >
+            <RiChatNewLine size={32} color="hsl(215, 20%, 55%)" />
+          </div>
+          <h2
+            style={{
+              fontSize: "20px",
+              fontWeight: "600",
+              color: "hsl(210, 40%, 96%)",
+              marginBottom: "8px",
+              margin: "0",
+            }}
+          >
+            Your messages
+          </h2>
+          <p
+            style={{
+              color: "hsl(215, 20%, 55%)",
+              fontSize: "14px",
+              marginTop: "8px",
+            }}
+          >
+            Select a conversation to start chatting
+          </p>
+        </div>
+      ) : null}
+
+      {/* Modals Overlay */}
+      {toggle && (
+        <div className="new-chat-modal-overlay" onClick={toggleChats}>
+          <div
+            className="new-chat-modal-container"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="new-chat-modal-header">
+              <h2>{togglenewgroup ? "New Group" : "New Chat"}</h2>
+              <button className="new-chat-modal-close" onClick={toggleChats}>
+                <RxCross1 />
+              </button>
+            </div>
+
+            {togglenewgroup && showGroupDetails ? (
+              <div className="new-chat-modal-body">
+                <div
+                  className="group-icon-section"
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
+                  <label
+                    className="group-icon-label"
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      backgroundColor: "#2a2c36",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      color: "#8A94A6",
+                      fontSize: "12px",
+                      textAlign: "center",
+                      padding: "10px",
+                    }}
+                  >
+                    <input type="file" onChange={handleIconUpload} hidden />
+                    <div className="icon-placeholder">ADD GROUP ICON</div>
+                  </label>
+                </div>
+                <div
+                  className="new-chat-modal-search"
+                  style={{ marginTop: "20px" }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Group subject (optional)"
+                    value={groupSubject}
+                    onChange={(e) => setGroupSubject(e.target.value)}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "30px",
+                  }}
+                >
+                  <button
+                    onClick={createGroup}
+                    style={{
+                      backgroundColor: "#8b5cf6",
+                      color: "white",
+                      border: "none",
+                      padding: "12px 24px",
+                      borderRadius: "24px",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Create Group
+                  </button>
+                </div>
+              </div>
+            ) : togglenewgroup ? (
+              <div className="new-chat-modal-body">
+                <div className="new-chat-modal-search">
+                  <div className="search-icon-wrapper">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinelinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  <input placeholder="search friends" />
+                </div>
+                <div className="new-chat-modal-list">
+                  {friends.map((item) => {
+                    const isSelected = selectedGroupMembers.includes(
+                      item.userId,
+                    );
+                    return (
+                      <div
+                        key={item.userId}
+                        className={`modal-friend-wrapper ${isSelected ? "selected" : ""}`}
+                        onClick={() => toggleGroupMember(item.userId)}
+                      >
+                        <FriendCard
+                          friendItem={item}
+                          isSelected={isSelected}
+                          inModal={true}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                {selectedGroupMembers.length > 0 && (
+                  <div className="modal-footer-action">
+                    <button onClick={() => setShowGroupDetails(true)}>
+                      Continue
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="new-chat-modal-body">
+                <div className="new-chat-modal-search">
+                  <div className="search-icon-wrapper">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinelinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  <input placeholder="search friends" />
+                </div>
+
+                <div className="modal-new-group-btn" onClick={toggleGroup}>
+                  <div className="group-btn-icon">
+                    <HiOutlineUserGroup size={24} />
+                  </div>
+                  <span>New Group</span>
+                </div>
+
+                <div className="new-chat-modal-list">
+                  {friends.map((item) => (
+                    <div className="modal-friend-wrapper" key={item.userId}>
+                      <FriendCard
+                        friendItem={item}
+                        inModal={true}
+                        onClick={async () => {
+                          setSelectedFriendId(item.userId);
+                          setToggle(false);
+                          if (!isMobile) {
+                            await checkOrCreateConversation(item.userId);
+                          } else {
+                            setTimeout(async () => {
+                              await checkOrCreateConversation(item.userId);
+                              setIsMobileChatOpen(true);
+                            }, 100);
+                          }
+                        }}
+                        isSelected={selectedFriendId === item.userId}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

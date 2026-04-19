@@ -39,7 +39,7 @@ export default function App() {
       // Set offline on page close/refresh
       const handleBeforeUnload = () => {
         navigator.sendBeacon(
-          getApiUrl(`/user/${userId}/online-status?isOnline=false`)
+          getApiUrl(`/user/${userId}/online-status?isOnline=false`),
         );
       };
 
@@ -89,9 +89,9 @@ export default function App() {
             }
           />
           <Route path="/friends" element={<Friends />} />
-          <Route path="/friendrequest" element={<FriendRequestPage />} />
-          <Route path="/suggestions" element={<SuggestionsPage />} />
-          <Route path="/friends/list" element={<AllFriends />} />
+          <Route path="/friendrequest" element={<Friends />} />
+          <Route path="/suggestions" element={<Friends />} />
+          <Route path="/friends/list" element={<Friends />} />
           {/* <Route path="profile/:userId" element={<UserProfile />} /> */}
           <Route path="/chats" element={<Conversations />} />
           <Route path="/profile/:user_id" element={<FriendsProfile />} />

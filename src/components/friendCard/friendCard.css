@@ -1,42 +1,91 @@
 .AFri {
-  width: 100%;
-  height: 70px;
+  width: 200px;
+  height: 220px;
   display: flex;
-  gap: 2%;
+  flex-direction: column;
+  background: #111827;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.AFri:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.Afri-pic-cont {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
   color: #fff;
 }
-.Afri-pic-cont {
-  width: 20%;
-}
+
 .Afri-pic {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
+
 .Afri-name {
-  width: 75%;
-  /* border: 1px solid red; */
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 3%;
-  text-align: left;
+  align-items: center;
+  margin-bottom: auto;
 }
+
 .Afri-name-text {
-  height: 40%;
-  /* border: 1px solid green; */
-  font-size: 130%;
-}
-.selected-text {
-  color: #5b9cff;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .mutual-text {
-  font-size: 80%;
-  color: #3b82f6; /* Default color */
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
 }
 
-.selected-mutual {
-  color: #60a5fa; /* Lighter blue when selected */
+.unfriend-btn {
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  padding: 8px 0;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unfriend-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }

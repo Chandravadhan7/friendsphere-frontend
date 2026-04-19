@@ -33,7 +33,7 @@
 
 .friends-header h2 {
   margin: 0;
-  color: #fff;
+  color: #a855f7;
   font-size: 24px;
   font-weight: 600;
   text-align: left;
@@ -56,18 +56,22 @@
 }
 
 .friend-cont-side21 {
-  min-height: 50px;
+  min-height: 30px;
   text-align: left;
   color: #fff;
-  font-size: 150%;
-  margin-top: 20px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-top: 24px;
+  margin-bottom: 20px;
+  padding: 0 24px;
 }
 
 .friend-cont-side22 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  justify-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+  padding: 0 24px;
 }
 
 .friend-menu-item {
@@ -77,6 +81,8 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   gap: 12px;
+  border-radius: 12px;
+  margin: 0 12px 8px 12px;
 }
 
 .friend-menu-item:hover {
@@ -84,8 +90,7 @@
 }
 
 .friend-menu-item.active {
-  background-color: rgba(91, 156, 255, 0.12);
-  border-left: 3px solid #5b9cff;
+  background-color: rgba(168, 85, 247, 0.15);
 }
 
 .friend-menu-icon {
@@ -105,7 +110,11 @@
 }
 
 .friend-menu-item.active .friend-menu-icon {
-  background-color: #5b9cff;
+  background-color: #a855f7;
+}
+
+.friend-menu-item.active .friend-menu-text {
+  color: #a855f7;
 }
 
 .friend-menu-text {
@@ -437,14 +446,13 @@
   }
 }
 
-
 .friend-menu-icon svg {
   font-size: 20px;
   color: #fff;
 }
 
 .friend-menu-item.active .friend-menu-icon {
-  background-color: #667eea;
+  background-color: #a855f7;
 }
 
 .friend-menu-text {
@@ -570,7 +578,7 @@
   align-items: center;
   background: rgba(46, 60, 84, 0.6);
   backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(102, 126, 234, 0.2);
+  border: 1.5px solid rgba(168, 85, 247, 0.2);
   border-radius: 25px;
   width: 90%;
   height: 45px;
@@ -580,9 +588,9 @@
 
 .search-input-wrapper:focus-within {
   background: rgba(55, 65, 81, 0.8);
-  border-color: #667eea;
+  border-color: #a855f7;
   box-shadow:
-    0 0 0 3px rgba(102, 126, 234, 0.1),
+    0 0 0 3px rgba(168, 85, 247, 0.1),
     0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -610,7 +618,7 @@
 }
 
 .search-input-wrapper:focus-within .search-icon {
-  color: #667eea;
+  color: #a855f7;
 }
 
 /* Mobile Back Button */

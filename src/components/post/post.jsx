@@ -62,7 +62,7 @@ export default function Post({ postItem, likes }) {
             userId: userId,
             sessionId: sessionId,
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(`Failed to dislike post. Status: ${response.status}`);
@@ -111,7 +111,7 @@ export default function Post({ postItem, likes }) {
           sessionId: sessionId,
         },
         body: JSON.stringify(inputobj),
-      }
+      },
     );
     if (!response.ok) {
       throw new Error("commenting on post is failed");
@@ -170,7 +170,7 @@ export default function Post({ postItem, likes }) {
             sessionId: sessionId,
             userId: String(userId),
           },
-        }
+        },
       );
       if (response.ok) {
         const convos = await response.json();
@@ -184,25 +184,25 @@ export default function Post({ postItem, likes }) {
                 // Get participants for 1-on-1 conversations
                 const participantsResponse = await fetch(
                   getApiUrl(
-                    `/conversation-participants/${convo.conversationId}`
+                    `/conversation-participants/${convo.conversationId}`,
                   ),
                   {
                     headers: {
                       sessionId: sessionId,
                       userId: String(userId),
                     },
-                  }
+                  },
                 );
 
                 if (participantsResponse.ok) {
                   const participants = await participantsResponse.json();
                   console.log(
                     `Participants for convo ${convo.conversationId}:`,
-                    participants
+                    participants,
                   );
 
                   const otherUser = participants.find(
-                    (p) => p.userId !== Number(userId)
+                    (p) => p.userId !== Number(userId),
                   );
                   console.log("Other user:", otherUser);
 
@@ -215,7 +215,7 @@ export default function Post({ postItem, likes }) {
                           sessionId: sessionId,
                           userId: String(userId),
                         },
-                      }
+                      },
                     );
 
                     if (userResponse.ok) {
@@ -229,14 +229,14 @@ export default function Post({ postItem, likes }) {
                     } else {
                       console.error(
                         "Failed to fetch user details:",
-                        userResponse.status
+                        userResponse.status,
                       );
                     }
                   }
                 } else {
                   console.error(
                     "Failed to fetch participants:",
-                    participantsResponse.status
+                    participantsResponse.status,
                   );
                 }
               } catch (error) {
@@ -244,7 +244,7 @@ export default function Post({ postItem, likes }) {
               }
             }
             return convo;
-          })
+          }),
         );
 
         console.log("Enriched conversations:", enrichedConvos);
@@ -299,7 +299,7 @@ export default function Post({ postItem, likes }) {
             isDeleted: false,
             replyToMessageId: null,
           }),
-        })
+        }),
       );
 
       const results = await Promise.all(sharePromises);
@@ -307,7 +307,7 @@ export default function Post({ postItem, likes }) {
 
       if (allSuccessful) {
         alert(
-          `Post shared successfully to ${selectedConversations.length} chat(s)!`
+          `Post shared successfully to ${selectedConversations.length} chat(s)!`,
         );
         setShowShareModal(false);
         setSelectedConversations([]);
@@ -336,7 +336,7 @@ export default function Post({ postItem, likes }) {
           userId: userId,
           sessionId: sessionId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -351,14 +351,25 @@ export default function Post({ postItem, likes }) {
     <div className={`whole-cont ${showComments ? "expanded" : ""}`}>
       {postItem?.sharedBy && (
         <div className="post-shared-indicator">
-          <img
-            src={
-              postItem.sharedBy.profileImg ||
-              "https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-            }
-            className="shared-user-pic"
-            alt="shared by"
-          />
+          <div
+            className="header-avatar-initial"
+            style={{
+              backgroundColor: [
+                "#00d4ff",
+                "#fbbf24",
+                "#10b981",
+                "#ec4899",
+                "#a855f7",
+              ][postItem.sharedBy.name ? postItem.sharedBy.name.length % 5 : 0],
+              marginLeft: 0,
+              width: "24px",
+              height: "24px",
+              fontSize: "12px",
+              borderRadius: "6px",
+            }}
+          >
+            {postItem.sharedBy.name?.charAt(0).toUpperCase() || "U"}
+          </div>
           <div className="shared-info">
             <div className="shared-user-name">{postItem.sharedBy.name}</div>
             <div className="shared-text">
@@ -375,23 +386,27 @@ export default function Post({ postItem, likes }) {
           </div>
         </div>
       )}
-      <div
-        className="post-cont"
-        style={!hasDescription ? { minHeight: "450px" } : {}}
-      >
-        <div
-          className="post-pro"
-          style={hasDescription ? { height: "15%" } : {}}
-        >
+      <div className="post-cont">
+        <div className="post-pro">
           <div className="post-pro-pic-cont">
-            <img
-              src={
-                userDetails?.profile_img_url ||
-                "https://i.ibb.co/67HWYXmq/icons8-user-96.png"
-              }
-              className="post-pro-pic"
-              alt="profile"
-            />
+            <div
+              className="header-avatar-initial"
+              style={{
+                backgroundColor: [
+                  "#00d4ff",
+                  "#fbbf24",
+                  "#10b981",
+                  "#ec4899",
+                  "#a855f7",
+                ][userDetails?.name ? userDetails?.name.length % 5 : 0],
+                marginLeft: 0,
+                width: "44px",
+                height: "44px",
+                fontSize: "18px",
+              }}
+            >
+              {userDetails?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
           </div>
           <div className="post-pro-name">
             <div className="post-pro-user-name">{userDetails?.name}</div>
@@ -421,12 +436,32 @@ export default function Post({ postItem, likes }) {
           <div className="post-des">{postItem?.description}</div>
         )}
 
-        <div
-          className="post-content"
-          style={hasDescription ? { height: "75%" } : {}}
-        >
-          <img src={postItem?.imageUrl} className="post-pro-pic1" />
-        </div>
+        {postItem?.imageUrl && (
+          <div className="post-content">
+            {postItem?.imageUrl?.match(/\.(mp4|webm|ogg|mov)$/i) ||
+            postItem?.imageUrl?.includes("/video/") ||
+            postItem?.content === "video" ? (
+              <video
+                src={postItem?.imageUrl}
+                className="post-pro-pic1"
+                controls
+                style={{
+                  width: "100%",
+                  maxHeight: "500px",
+                  borderRadius: "8px",
+                  objectFit: "cover",
+                  backgroundColor: "#000",
+                }}
+              />
+            ) : (
+              <img
+                src={postItem?.imageUrl}
+                className="post-pro-pic1"
+                alt="Post content"
+              />
+            )}
+          </div>
+        )}
 
         <div className="post-lcs">
           <div
@@ -495,7 +530,7 @@ export default function Post({ postItem, likes }) {
                       <input
                         type="checkbox"
                         checked={selectedConversations.includes(
-                          convo.conversationId
+                          convo.conversationId,
                         )}
                         onChange={() => {}}
                         onClick={(e) => e.stopPropagation()}
@@ -547,14 +582,21 @@ export default function Post({ postItem, likes }) {
           </div>
           <div className="add-comment">
             <div className="pic-cont">
-              <img
-                src={"https://i.ibb.co/67HWYXmq/icons8-user-96.png"}
-                className="post-pro-pic"
-                alt="profile"
-              />
+              <div
+                className="header-avatar-initial"
+                style={{
+                  backgroundColor: "#fbbf24",
+                  marginLeft: 0,
+                  width: "36px",
+                  height: "36px",
+                  fontSize: "15px",
+                }}
+              >
+                M
+              </div>
             </div>
             <input
-              placeholder="write a comment"
+              placeholder="write a comment..."
               onChange={(e) => setComment(e.target.value)}
               value={comment}
               className="comment-bar"

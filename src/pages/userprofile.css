@@ -351,18 +351,14 @@
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  gap: 14px;
+  gap: 20px;
   align-items: flex-start;
   align-content: flex-start;
 }
 
 .frnd-card {
-  width: calc(33.33% - 10px);
-  height: 80px;
-  background-color: #031429;
-  border-radius: 8px;
-  cursor: pointer;
   text-decoration: none;
+  display: block;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -429,10 +425,6 @@
   .user-info {
     width: 100%;
     max-width: 100%;
-  }
-
-  .frnd-card {
-    width: calc(50% - 7px);
   }
 
   .photo {

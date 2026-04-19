@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import "./header.css";
 import { getApiUrl } from "../../config/api";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import SearchIcon from "@mui/icons-material/Search";
-import CloseIcon from "@mui/icons-material/Close";
-import { GrHomeRounded } from "react-icons/gr";
-import { FiMessageSquare } from "react-icons/fi";
-import { IoIosNotificationsOutline } from "react-icons/io";
+import {
+  Home,
+  Users,
+  MessageSquare,
+  Bell,
+  Search,
+  X,
+  UserCircle,
+  LogOut,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaUserFriends, FaSignOutAlt } from "react-icons/fa";
-import { HiUserCircle, HiUsers, HiLogout } from "react-icons/hi";
-import { RiUserLine, RiTeamLine, RiLogoutBoxRLine } from "react-icons/ri";
 
 export default function Header() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -76,13 +77,13 @@ export default function Header() {
       <div className="header mobile-search-mode">
         <div className="mobile-search-container">
           <div className="search-input-wrap mobile-search">
-            <SearchIcon className="search-icon" />
+            <Search className="search-icon" size={20} />
             <input
               type="text"
               placeholder="Explore topics, people & more..."
               autoFocus
             />
-            <CloseIcon className="close-icon" onClick={handleSearchClose} />
+            <X className="close-icon" onClick={handleSearchClose} size={20} />
           </div>
         </div>
       </div>
@@ -99,7 +100,7 @@ export default function Header() {
           {!isMobile && (
             <div className="head-search">
               <div className="search-input-wrap">
-                <SearchIcon className="search-icon" />
+                <Search className="search-icon" size={20} />
                 <input
                   type="text"
                   placeholder="Explore topics, people & more..."
@@ -111,35 +112,32 @@ export default function Header() {
         <div className="header12">
           {isMobile && (
             <div className="mobile-search-icon" onClick={handleSearchToggle}>
-              <SearchIcon
+              <Search
                 style={{ fontSize: "180%", color: "#fff", cursor: "pointer" }}
+                size={24}
               />
             </div>
           )}
-          <Link to="/*">
-            <GrHomeRounded style={{ fontSize: "150%", color: "#fff" }} />
+          <Link to="/*" className="header-icon-link">
+            <Home size={22} className="header-icon" />
           </Link>
-          <Link to="/friends">
-            <PeopleAltOutlinedIcon
-              style={{ fontSize: "180%", color: "#fff" }}
-            />
+          <Link to="/friends" className="header-icon-link active">
+            <Users size={22} className="header-icon" />
           </Link>
-          <Link to="/chats">
-            <FiMessageSquare style={{ fontSize: "180%", color: "#fff" }} />
+          <Link to="/chats" className="header-icon-link">
+            <MessageSquare size={22} className="header-icon" />
           </Link>
-          <Link>
-            <IoIosNotificationsOutline
-              style={{ fontSize: "200%", color: "#fff" }}
-            />
+          <Link to="#" className="header-icon-link">
+            <Bell size={22} className="header-icon" />
           </Link>
 
           <div className="dropdown-wrapper" ref={dropdownRef}>
-            <div className="post-pro-pic-cont" onClick={toggleDropdown}>
-              <img
-                src={"https://i.ibb.co/67HWYXmq/icons8-user-96.png"}
-                className="post-pro-pic"
-                alt="profile"
-              />
+            <div
+              className="header-avatar-initial"
+              onClick={toggleDropdown}
+              style={{ backgroundColor: "#fbbf24" }}
+            >
+              M
             </div>
 
             {isDropdownOpen && (
@@ -148,21 +146,21 @@ export default function Header() {
                   className="dropdown-item"
                   onClick={() => navigate("/profile")}
                 >
-                  <HiUserCircle className="dropdown-icon" />
+                  <UserCircle className="dropdown-icon" size={20} />
                   <span>View Profile</span>
                 </div>
                 <div
                   className="dropdown-item"
                   onClick={() => navigate("/friends")}
                 >
-                  <RiTeamLine className="dropdown-icon" />
+                  <Users className="dropdown-icon" size={20} />
                   <span>Friends</span>
                 </div>
                 <div
                   className="dropdown-item dropdown-item-logout"
                   onClick={logout}
                 >
-                  <RiLogoutBoxRLine className="dropdown-icon" />
+                  <LogOut className="dropdown-icon" size={20} />
                   <span>Logout</span>
                 </div>
               </div>

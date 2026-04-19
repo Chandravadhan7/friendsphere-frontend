@@ -16,7 +16,7 @@ export default function Suggestion({ suggestedItem }) {
           sessionId: sessionId,
           userId: userId,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -79,16 +79,29 @@ export default function Suggestion({ suggestedItem }) {
 
   return (
     <div className="suggestion">
-      <div className="sugg-pic-cont">
-        <img src={suggestedItem?.profile_img_url} className="sugg-pic" />
-      </div>
-      <div className="sugg-name">
-        <div className="sugg-name-user">{suggestedItem?.name}</div>
-        {mutualFriends.length > 0 && (
-          <div style={{ fontSize: "80%", color: "#3B82F6" }}>
-            {mutualFriends.length} mutual Friends
-          </div>
-        )}
+      <div className="sugg-left">
+        <div
+          className="sugg-pic-initial"
+          style={{
+            backgroundColor: [
+              "#00d4ff",
+              "#fbbf24",
+              "#10b981",
+              "#ec4899",
+              "#a855f7",
+            ][suggestedItem?.name ? suggestedItem?.name.length % 5 : 0],
+          }}
+        >
+          {suggestedItem?.name?.charAt(0).toUpperCase() || "U"}
+        </div>
+        <div className="sugg-name">
+          <div className="sugg-name-user">{suggestedItem?.name}</div>
+          {mutualFriends.length > 0 && (
+            <div style={{ fontSize: "80%", color: "#3B82F6" }}>
+              {mutualFriends.length} mutual Friends
+            </div>
+          )}
+        </div>
       </div>
       <div className="sugg-add">
         <button
@@ -99,10 +112,13 @@ export default function Suggestion({ suggestedItem }) {
               ? cancelFriendRequest(suggestedItem.userId)
               : sendFriendRequest(suggestedItem.userId);
           }}
+          title={
+            friendRequests[suggestedItem.userId]
+              ? "Cancel Request"
+              : "Add Friend"
+          }
         >
-          {friendRequests[suggestedItem.userId]
-            ? "Cancel Request"
-            : "Add Friend"}
+          {friendRequests[suggestedItem.userId] ? "Cancel" : "Add Friend"}
         </button>
       </div>
     </div>

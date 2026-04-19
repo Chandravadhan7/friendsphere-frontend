@@ -1,15 +1,17 @@
 .convo-page-side2-convo-msg {
   max-width: 50%;
-  padding: 10px 15px;
-  border-radius: 10px;
-  color: white;
+  padding: 12px 16px;
+  border-radius: 16px;
+  color: hsl(210, 40%, 96%);
   word-wrap: break-word;
   white-space: pre-wrap;
-  background-color: #172949;
-  border: 1px solid #152135;
+  font-size: 14px;
+  background-color: hsl(222, 30%, 18%);
+  border: none;
   display: flex;
   flex-direction: column;
-  position: relative; /* Optional for more control */
+  position: relative;
+  width: max-content;
 }
 
 .convo-page-side2-convo-msg-msg {
@@ -23,10 +25,10 @@
   justify-content: flex-end;
   align-self: flex-end; /* push to the right */
   gap: 4px;
-  margin-top: 5px;
-  font-size: 10px;
-  color: #ccc;
-  /* border: 1px solid black; */
+  margin-top: 4px;
+  font-size: 11px;
+  color: hsl(215, 20%, 55%);
+  font-weight: 300;
 }
 
 .time {
@@ -56,7 +58,7 @@
 
 .shared-post-link {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: hsl(215, 20%, 55%);
   font-style: italic;
   white-space: pre-wrap;
 }

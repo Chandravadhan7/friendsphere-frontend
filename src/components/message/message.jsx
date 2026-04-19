@@ -36,12 +36,18 @@ export default function Message({
       style={{
         ...style,
         backgroundColor: message.isDeleted
-          ? "#1a1a1a"
+          ? "hsl(222, 30%, 16%)"
           : isUserMessage
-            ? "#3B82F6"
-            : "#1F2A3C",
-        borderColor: isUserMessage ? "green" : "#152135",
+            ? "hsl(262, 80%, 60%)"
+            : "hsl(222, 30%, 18%)",
+        borderColor: "transparent",
         position: "relative",
+        borderRadius: isUserMessage
+          ? "16px 16px 0px 16px"
+          : "16px 16px 16px 0px",
+        padding: "10px 16px",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+        alignSelf: isUserMessage ? "flex-end" : "flex-start",
       }}
     >
       {isUserMessage && !message.isDeleted && (
@@ -119,11 +125,11 @@ export default function Message({
         {message.isDeleted ? (
           <em style={{ color: "#888" }}>This message was deleted</em>
         ) : message?.content?.includes("shared a post") ? (
-          <div 
+          <div
             className="shared-post-message"
             onClick={() => {
               const lines = message.content.split("\n");
-              const urlLine = lines.find(line => line.includes("postId="));
+              const urlLine = lines.find((line) => line.includes("postId="));
               if (urlLine) {
                 const postIdMatch = urlLine.match(/postId=(\d+)/);
                 if (postIdMatch) {
@@ -137,7 +143,7 @@ export default function Message({
               borderRadius: "8px",
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(102, 126, 234, 0.3)",
-              transition: "all 0.2s ease"
+              transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "rgba(102, 126, 234, 0.1)";

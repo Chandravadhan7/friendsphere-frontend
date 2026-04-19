@@ -1,42 +1,48 @@
 .header {
-  height: 70px;
-  width: 80%;
-  padding: 0 10% 0 10%;
-  background: linear-gradient(135deg, #031429 0%, #031429 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  height: 60px;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #121a2b, #0f1524);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header1 {
   width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 32%;
+  justify-content: space-between;
 }
 
 .header11 {
-  width: 42%;
-  height: 60%;
+  height: 100%;
   display: flex;
-  gap: 8%;
+  gap: 40px;
   align-items: center;
+  flex: 1;
 }
 
 .head-logo {
-  width: 40%;
   color: #ffffff;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   text-decoration: none;
-  font-family: "Poppins", sans-serif;
-  letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: -0.3px;
+  background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -45,48 +51,39 @@
 }
 
 .head-logo:hover {
-  transform: scale(1.05);
   filter: brightness(1.2);
 }
 
 .head-search {
-  width: 70%;
-  height: 42px;
+  max-width: 400px;
+  width: 100%;
+  height: 36px;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
 .header12 {
-  width: 30%;
-  height: 50%;
+  height: 100%;
   display: flex;
-  gap: 5%;
+  gap: 16px;
   align-items: center;
-  text-decoration: none;
+  justify-content: flex-end;
 }
 
 .search-input-wrap {
   display: flex;
   align-items: center;
-  background: rgba(31, 41, 55, 0.6);
-  border: 1.5px solid rgba(55, 65, 81, 0.8);
-  border-radius: 28px;
-  width: 98%;
+  background: #1a1f2e;
+  border-radius: 12px;
+  width: 100%;
   height: 100%;
   padding: 0 16px;
-  position: relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(8px);
 }
 
 .search-input-wrap:focus-within {
-  background: rgba(55, 65, 81, 0.8);
-  border-color: #667eea;
-  box-shadow:
-    0 0 0 4px rgba(102, 126, 234, 0.15),
-    0 8px 16px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
+  background: #222d3d;
+  box-shadow: 0 0 0 1px #a855f7;
 }
 
 .search-input-wrap input {
@@ -124,6 +121,43 @@
 
 .close-icon:hover {
   color: #ef4444;
+}
+
+.header-icon-link {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #9ca3af;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.header-icon-link:hover {
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.header-icon-link.active {
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.15);
+}
+
+.header-avatar-initial {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f141e;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-left: 8px;
 }
 
 .post-pro-pic-cont {
@@ -212,7 +246,7 @@
   border-radius: 14px;
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(102, 126, 234, 0.1);
+    0 0 0 1px rgba(168, 85, 247, 0.1);
   width: 180px;
   z-index: 1000;
   padding: 8px;
@@ -242,8 +276,8 @@
 .dropdown-item:hover {
   background: linear-gradient(
     135deg,
-    rgba(102, 126, 234, 0.15) 0%,
-    rgba(118, 75, 162, 0.15) 100%
+    rgba(168, 85, 247, 0.15) 0%,
+    rgba(236, 72, 153, 0.15) 100%
   );
   color: #fff;
   transform: translateX(4px);
@@ -251,19 +285,19 @@
 
 .dropdown-icon {
   font-size: 1.2rem;
-  color: #667eea;
+  color: #a855f7;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(168, 85, 247, 0.1);
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .dropdown-item:hover .dropdown-icon {
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(168, 85, 247, 0.2);
   transform: scale(1.1);
 }
 
